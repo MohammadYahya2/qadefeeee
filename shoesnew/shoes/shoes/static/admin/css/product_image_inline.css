@@ -1,0 +1,43 @@
+/* Product Image Inline Styling */
+.inline-group .tabular .form-row {
+    padding: 10px 0;
+}
+
+.inline-group .tabular td {
+    vertical-align: top;
+    padding: 8px 5px;
+}
+
+.inline-group .tabular .field-image_preview {
+    text-align: center;
+    width: 100px;
+}
+
+.inline-group .tabular .field-color_info {
+    width: 150px;
+}
+
+.inline-group .tabular .field-main_photo_status {
+    width: 120px;
+    text-align: center;
+}
+
+/* Order field removed */
+
+/* RTL Support */
+.rtl .inline-group .tabular .field-image_preview,
+.rtl .inline-group .tabular .field-main_photo_status {
+    text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .inline-group .tabular .field-image_preview img {
+        width: 60px !important;
+        height: 60px !important;
+    }
+    
+    .inline-group .tabular .field-color_info {
+        width: 120px;
+    }
+} 

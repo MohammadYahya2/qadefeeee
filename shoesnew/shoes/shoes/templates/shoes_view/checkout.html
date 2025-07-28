@@ -1,0 +1,594 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}إتمام الطلب - {{ site_name }}{% endblock %}
+
+{% block page_class %}inner-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/interactive-captcha.css' %}">
+<style>
+    /* Enhanced form container with white background */
+    .checkout-form-container {
+        background-color: #ffffff;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        border: 2px solid #f3f4f6;
+        margin-bottom: 2rem;
+    }
+    
+    /* Enhanced form inputs with bigger text */
+    .form-input {
+        background-color: #ffffff;
+        border: 3px solid #d97706;
+        color: #1f2937;
+        font-size: 1.125rem; /* Increased from 1rem */
+        font-weight: 600; /* Increased from 500 */
+        border-radius: 0.75rem;
+        display: block;
+        width: 100%;
+        padding: 1.25rem 1.5rem; /* Increased padding */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        line-height: 1.5;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #fbbf24;
+        box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.25), 
+                    0 8px 25px rgba(220, 38, 38, 0.1);
+        transform: translateY(-2px);
+        background-color: #ffffff;
+    }
+    
+    .form-input:hover:not(:focus) {
+        border-color: #f59e0b;
+        background-color: #f9fafb;
+        transform: translateY(-1px);
+    }
+    
+    .form-input::placeholder {
+        color: #6b7280;
+        font-size: 1rem;
+    }
+    
+    /* Enhanced form labels with bigger text */
+    .form-label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-size: 1.125rem; /* Increased from 0.875rem */
+        font-weight: 700; /* Increased from 500 */
+        color: #1f2937; /* Darker color */
+    }
+    
+    /* Enhanced section headings */
+    .section-heading {
+        font-size: 1.75rem; /* Increased */
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 3px solid #f97316;
+    }
+    
+    /* Enhanced payment options */
+    .payment-option {
+        background-color: #ffffff;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.125rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .payment-option:hover {
+        border-color: #d1d5db;
+        background-color: #f9fafb;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .payment-option.selected {
+        border-color: #f97316;
+        background-color: #fff7ed;
+        box-shadow: 0 4px 16px rgba(249, 115, 22, 0.2);
+    }
+    
+    /* Enhanced error text */
+    .error-text {
+        color: #dc2626;
+        font-size: 1rem; /* Increased from 0.875rem */
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+    
+    /* Enhanced main page heading */
+    .main-heading {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #1f2937;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Enhanced login prompt */
+    .login-prompt {
+        background-color: #ffffff;
+        border: 2px solid #3b82f6;
+        color: #1e40af;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+    
+    /* ENHANCED ORDER SUMMARY STYLING */
+    .order-summary-container {
+        background-color: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        border: 2px solid #f3f4f6;
+        padding: 2rem;
+    }
+    
+    .order-summary-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1f2937;
+        border-bottom: 3px solid #f97316;
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background-color: #f9fafb;
+        border-radius: 0.75rem;
+        border: 2px solid #e5e7eb;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .order-item:hover {
+        background-color: #f3f4f6;
+        border-color: #d1d5db;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .order-item-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 0.75rem;
+        border: 2px solid #d1d5db;
+        flex-shrink: 0;
+    }
+    
+    .order-item-details {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .order-item-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+    
+    .order-item-specs {
+        font-size: 1rem;
+        color: #6b7280;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .order-item-price {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #f97316;
+        white-space: nowrap;
+    }
+    
+    .order-summary-section {
+        border-top: 2px solid #e5e7eb;
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+    }
+    
+    .summary-row.total {
+        border-top: 2px solid #f97316;
+        padding-top: 1rem;
+        margin-top: 1rem;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1f2937;
+    }
+    
+    .summary-row.discount {
+        color: #059669;
+    }
+    
+    .summary-row.shipping {
+        color: #3b82f6;
+    }
+    
+    .summary-row.gift {
+        color: #7c3aed;
+    }
+    
+    .order-items-container {
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .order-items-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .order-items-container::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+    }
+    
+    .order-items-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+    
+    .order-items-container::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    
+    .checkout-button {
+        width: 100%;
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 800;
+        padding: 1.25rem 2rem;
+        border-radius: 0.75rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3);
+        margin-top: 1.5rem;
+    }
+    
+    .checkout-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
+    }
+    
+    .checkout-button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .security-notice {
+        text-align: center;
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background-color: #f9fafb;
+        border-radius: 0.5rem;
+    }
+    
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+        .checkout-form-container {
+            padding: 1.5rem;
+        }
+        
+        .order-summary-container {
+            padding: 1.5rem;
+        }
+        
+        .form-input {
+            font-size: 1rem;
+            padding: 1rem 1.25rem;
+        }
+        
+        .form-label {
+            font-size: 1rem;
+        }
+        
+        .section-heading {
+            font-size: 1.5rem;
+        }
+        
+        .main-heading {
+            font-size: 2rem;
+        }
+        
+        .order-summary-title {
+            font-size: 1.5rem;
+        }
+        
+        .order-item {
+            padding: 1rem;
+            gap: 1rem;
+        }
+        
+        .order-item-image {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .order-item-name {
+            font-size: 1.125rem;
+        }
+        
+        .order-item-price {
+            font-size: 1.125rem;
+        }
+        
+        .summary-row {
+            font-size: 1rem;
+        }
+        
+        .summary-row.total {
+            font-size: 1.25rem;
+        }
+        
+        .checkout-button {
+            font-size: 1.125rem;
+            padding: 1rem 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 pt-32 pb-6">
+    <div class="container mx-auto px-4">
+        <h1 class="main-heading text-center">إتمام الطلب</h1>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-10">
+    <div class="grid lg:grid-cols-12 gap-8 lg:gap-12">
+        
+        <!-- Left Side: Form -->
+        <div class="lg:col-span-7">
+            <div class="checkout-form-container">
+                <h2 class="section-heading">معلومات الشحن</h2>
+                
+                {% if not user.is_authenticated %}
+                <div class="login-prompt">
+                    لديك حساب بالفعل؟ <a href="{% url 'shoes_view:login' %}?next={{ request.path }}" class="font-bold underline hover:text-orange-600">سجل الدخول</a> لتعبئة بياناتك تلقائياً.
+                </div>
+                {% endif %}
+                
+                <form method="post" id="checkout-form" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.full_name.id_for_label }}" class="form-label">{{ form.full_name.label }}*</label>
+                            {{ form.full_name }}
+                            {% if form.full_name.errors %}<div class="error-text">{{ form.full_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">{{ form.phone.label }}*</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}<div class="error-text">{{ form.phone.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.city.id_for_label }}" class="form-label">{{ form.city.label }}*</label>
+                            {{ form.city }}
+                            {% if form.city.errors %}<div class="error-text">{{ form.city.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.address.id_for_label }}" class="form-label">{{ form.address.label }}*</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}<div class="error-text">{{ form.address.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="{{ form.notes.id_for_label }}" class="form-label">{{ form.notes.label }}</label>
+                        {{ form.notes }}
+                    </div>
+                    
+                    <!-- Interactive Captcha -->
+                    <div>
+                        <div id="captcha-container-checkout"></div>
+                        {{ form.captcha }}
+                        {% if form.captcha.errors %}<div class="error-text">{{ form.captcha.errors.0 }}</div>{% endif %}
+                    </div>
+                    
+                    <div class="pt-6">
+                        <h2 class="section-heading">طريقة الدفع</h2>
+                        <div class="space-y-4">
+                            {% for choice in form.payment_method %}
+                                <label class="payment-option flex items-center">
+                                    {{ choice.tag }}
+                                    <div class="ml-4 rtl:mr-4">
+                                        <div class="font-semibold text-gray-800">{{ choice.choice_label }}</div>
+                                    </div>
+                                </label>
+                            {% endfor %}
+                        </div>
+                        {% if form.payment_method.errors %}<div class="error-text mt-2">{{ form.payment_method.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <!-- This button is only for form submission logic, it will be hidden. The main button is in the right column -->
+                    <button type="submit" id="hidden-submit" class="hidden">Submit</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Right Side: Enhanced Order Summary -->
+        <div class="lg:col-span-5">
+            <div class="order-summary-container lg:sticky lg:top-32">
+                <h2 class="order-summary-title">ملخص الطلب</h2>
+                
+                <!-- Order Items with Enhanced Styling -->
+                <div class="order-items-container">
+                    {% for item in cart_items %}
+                    <div class="order-item">
+                        <img src="{{ item.product.get_main_image.url }}" alt="{{ item.product.name }}" class="order-item-image">
+                        <div class="order-item-details">
+                            <h3 class="order-item-name">{{ item.product.name }}</h3>
+                            <p class="order-item-specs">مقاس: {{ item.size }}</p>
+                            <p class="order-item-specs">الكمية: {{ item.quantity }}</p>
+                        </div>
+                        <div class="order-item-price">{{ item.get_total_price }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Enhanced Summary Section -->
+                <div class="order-summary-section">
+                    <div class="summary-row">
+                        <span>المجموع الفرعي</span>
+                        <span>{{ cart_total }}₪</span>
+                    </div>
+                    
+                    {% if available_discount > 0 %}
+                    <div class="summary-row discount">
+                        <span>خصم عجلة الحظ ({{ available_discount }}%)</span>
+                        <span>-{{ discount_amount }}₪</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if wheel_prizes.free_shipping %}
+                    <div class="summary-row shipping">
+                        <span><i class="fas fa-shipping-fast ml-1"></i> {{ wheel_prizes.free_shipping.description }}</span>
+                        <span>مجاني</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if wheel_prizes.gift %}
+                    <div class="summary-row gift">
+                        <span><i class="fas fa-gift ml-1"></i> {{ wheel_prizes.gift.display }}</span>
+                        <span>مجاني</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="summary-row">
+                        <span>الشحن</span>
+                        <span>
+                            {% if wheel_prizes.free_shipping %}
+                                <span class="shipping">مجاني</span>
+                            {% else %}
+                                يُحدد لاحقاً
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="summary-row total">
+                        <span>المجموع النهائي</span>
+                        <span>{{ final_amount }}₪</span>
+                    </div>
+                </div>
+
+                <button type="button" id="submit-checkout" class="checkout-button">
+                    <i class="fas fa-lock mr-2"></i>تأكيد الطلب
+                </button>
+
+                <div class="security-notice">
+                    <i class="fas fa-shield-alt mr-1"></i>
+                    معلوماتك الشخصية وبيانات الدفع محمية بالكامل.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add custom classes to form fields
+    const form = document.getElementById('checkout-form');
+    form.querySelectorAll('input[type="text"], input[type="tel"], select, textarea').forEach(input => {
+        input.classList.add('form-input');
+    });
+    form.querySelector('textarea').style.minHeight = '100px';
+    
+    // Style payment options
+    const paymentOptions = document.querySelectorAll('.payment-option');
+    paymentOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            paymentOptions.forEach(opt => opt.classList.remove('selected'));
+            option.classList.add('selected');
+            option.querySelector('input[type="radio"]').checked = true;
+        });
+        // Select first one by default or if it's already checked
+        if (option.querySelector('input[type="radio"]').checked) {
+            option.classList.add('selected');
+        }
+    });
+    
+    // If there's only one payment option, auto-select it
+    if (paymentOptions.length === 1) {
+        const singleOption = paymentOptions[0];
+        singleOption.classList.add('selected');
+        singleOption.querySelector('input[type="radio"]').checked = true;
+    }
+
+    // Handle form submission via the main button
+    const mainSubmitBtn = document.getElementById('submit-checkout');
+    const hiddenSubmitBtn = document.getElementById('hidden-submit');
+    const checkoutForm = document.getElementById('checkout-form');
+
+    mainSubmitBtn.addEventListener('click', function() {
+        // Check captcha before submitting
+        if (!validateCaptcha('captcha-container-checkout')) {
+            alert('يرجى إكمال التحقق من الهوية أولاً');
+            return false;
+        }
+        
+        // Trigger the form's submit event
+        hiddenSubmitBtn.click();
+    });
+
+    checkoutForm.addEventListener('submit', function(e) {
+        // Check captcha on form submit
+        if (!validateCaptcha('captcha-container-checkout')) {
+            e.preventDefault();
+            alert('يرجى إكمال التحقق من الهوية أولاً');
+            return false;
+        }
+        
+        // Show loading state on main button when form is submitted
+        mainSubmitBtn.disabled = true;
+        mainSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>جاري تأكيد الطلب...';
+    });
+    
+    // Initialize captcha for checkout form
+    new InteractiveCaptcha('captcha-container-checkout');
+});
+</script>
+<script src="{% static 'js/interactive-captcha.js' %}"></script>
+{% endblock %} 

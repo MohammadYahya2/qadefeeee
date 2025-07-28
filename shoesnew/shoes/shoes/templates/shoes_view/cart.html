@@ -1,0 +1,488 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}السلة - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-4xl font-extrabold mb-10 text-center text-gray-800" style="font-family: 'Cairo', sans-serif;">سلة التسوق</h1>
+            
+            {% if cart_items %}
+            <div class="grid lg:grid-cols-3 gap-12">
+                <!-- Cart Items -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                        <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b border-gray-200 pb-4">منتجاتك ({{ cart_items|length }})</h2>
+                        
+                        <div class="space-y-6">
+                            {% for item in cart_items %}
+                            <div class="flex items-center justify-between border-b border-gray-200 pb-6 cart-item" data-item-id="{{ item.id|default:forloop.counter }}">
+                                <div class="flex items-center flex-1 cursor-pointer" onclick="openProductDetails({{ item.product.id }})">
+                                    {% if item.product.get_main_image %}
+                                        <img src="{{ item.product.get_main_image.url }}" alt="{{ item.product.name }}" class="w-24 h-24 object-cover rounded-lg shadow-md border border-gray-200">
+                                    {% else %}
+                                        <div class="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-image text-gray-400 text-2xl"></i>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="mr-6 flex-1">
+                                        <h3 class="font-bold text-xl text-gray-800 hover:text-orange-600 transition-colors duration-300" style="font-family: 'Cairo', sans-serif;">{{ item.product.name }}</h3>
+                                        <p class="text-gray-500 mt-1">{{ item.product.brand.name }}</p>
+                                        <p class="text-sm text-gray-500">مقاس: {{ item.size }}</p>
+                                        <p class="text-gray-900 font-bold text-lg mt-2">{{ item.product.price }}₪</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-col items-end space-y-4">
+                                    <!-- Quantity Controls -->
+                                    <div class="flex items-center border border-gray-300 rounded-full">
+                                        <button class="quantity-btn p-2 w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-full transition-colors" data-action="decrease">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <span class="px-4 py-1 text-lg font-semibold text-gray-800 quantity-display">{{ item.quantity }}</span>
+                                        <button class="quantity-btn p-2 w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-full transition-colors" data-action="increase">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Remove Button -->
+                                    <button class="remove-btn text-gray-500 hover:text-red-500 transition-colors text-sm" 
+                                            data-cart-key="{{ item.id|default:forloop.counter }}"
+                                            data-item-id="{{ item.id|default:'' }}">
+                                        <i class="fas fa-trash-alt mr-1"></i>
+                                        إزالة
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Continue Shopping -->
+                    <div class="mt-8 text-center">
+                        <a href="{% url 'shoes_view:products' %}" class="inline-flex items-center text-orange-600 hover:text-orange-700 transition-colors font-semibold text-lg">
+                            <i class="fas fa-arrow-right ml-2"></i>
+                            متابعة التسوق
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm sticky top-28">
+                        <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b border-gray-200 pb-4">ملخص الطلب</h2>
+                        
+                        <!-- Price Details -->
+                        <div class="space-y-4 mb-8 text-lg">
+                            <div class="flex justify-between text-gray-600">
+                                <span>المجموع الفرعي:</span>
+                                <span id="subtotal" class="font-semibold text-gray-800">{{ total_amount }}₪</span>
+                            </div>
+                            
+                            {% if available_discount > 0 %}
+                            <div class="flex justify-between text-green-600 font-semibold">
+                                <span>خصم عجلة الحظ ({{ available_discount }}%):</span>
+                                <span>-{{ discount_amount }}₪</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if wheel_prizes.free_shipping %}
+                            <div class="flex justify-between text-blue-600 font-semibold">
+                                <span><i class="fas fa-shipping-fast ml-1"></i> شحن مجاني من عجلة الحظ:</span>
+                                <span>مجاني</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if wheel_prizes.gift %}
+                            <div class="flex justify-between text-purple-600 font-semibold">
+                                <span><i class="fas fa-gift ml-1"></i> هدية من عجلة الحظ:</span>
+                                <span>{{ wheel_prizes.gift.name }}</span>
+                            </div>
+                            {% if wheel_prizes.gift.description %}
+                            <div class="text-sm text-gray-500 text-left">
+                                {{ wheel_prizes.gift.description }}
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                            
+                            <div class="border-t-2 border-orange-500/50 pt-4 mt-4!">
+                                <div class="flex justify-between text-2xl font-extrabold text-gray-900">
+                                    <span>المجموع النهائي:</span>
+                                    <span id="total">{{ final_amount }}₪</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Checkout Button -->
+                        <a href="{% url 'shoes_view:checkout' %}" class="block w-full text-center px-6 py-4 rounded-lg font-bold text-xl text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-orange-500/20">
+                            <i class="fas fa-shield-alt ml-2"></i>
+                            إتمام الطلب بأمان
+                        </a>
+                        
+                        <!-- Wheel of Fortune -->
+                        {% if not available_discount %}
+                        <a href="{% url 'shoes_view:wheel' %}" class="block w-full text-center mt-4 py-3 border-2 border-orange-500 text-orange-600 rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-semibold">
+                            <i class="fas fa-gift ml-2"></i>
+                            جرب عجلة الحظ للحصول على خصم
+                        </a>
+                        {% endif %}
+                        
+                        <!-- Security -->
+                        <div class="mt-8 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                            <div class="flex items-center text-sm text-green-700">
+                                <i class="fas fa-shield-alt ml-2 text-green-600"></i>
+                                <span>دفع آمن ومحمي 100%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% else %}
+            <!-- Empty Cart -->
+            <div class="text-center py-20">
+                <div class="bg-white border border-gray-200 rounded-2xl p-12 max-w-lg mx-auto shadow-sm">
+                    <i class="fas fa-shopping-cart text-7xl text-gray-400 mb-8"></i>
+                    <h2 class="text-3xl font-bold mb-4 text-gray-800">سلة التسوق فارغة</h2>
+                    <p class="text-gray-500 mb-8 text-lg">لم تقم بإضافة أي منتجات بعد. استكشف مجموعتنا الرائعة!</p>
+                    <a href="{% url 'shoes_view:products' %}" class="inline-block bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold px-8 py-4 rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-orange-500/20 text-lg">
+                        <i class="fas fa-shopping-bag ml-2"></i>
+                        تصفح المنتجات الآن
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Recent Orders Section -->
+            {% if recent_orders %}
+            <div class="mt-20">
+                <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+                    <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">
+                        <i class="fas fa-history ml-2 text-blue-500"></i>
+                        طلباتك الأخيرة
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        {% for order in recent_orders %}
+                        <div class="border border-gray-200 rounded-xl p-6 bg-gray-50/50 hover:bg-gray-100 transition-colors duration-300">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                                        <span class="text-xl font-semibold text-gray-800">طلب #{{ order.order_id|slice:":8" }}...</span>
+                                        <span class="px-3 py-1 text-sm font-semibold rounded-full {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800 border border-yellow-300{% elif order.status == 'confirmed' %}bg-blue-100 text-blue-800 border border-blue-300{% elif order.status == 'delivered' %}bg-green-100 text-green-800 border border-green-300{% elif order.status == 'cancelled' %}bg-red-100 text-red-800 border border-red-300{% else %}bg-gray-100 text-gray-800 border border-gray-300{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-2">{{ order.created_at|date:"Y-m-d H:i" }}</p>
+                                    <p class="text-sm text-gray-600">{{ order.get_payment_method_display }}</p>
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-xl font-bold text-gray-900">{{ order.final_amount }}₪</div>
+                                    {% if order.discount_amount > 0 %}
+                                    <div class="text-sm text-green-600 mt-1">خصم: -{{ order.discount_amount }}₪</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Order Items -->
+                            <div class="border-t border-gray-200 mt-4 pt-4 space-y-3">
+                                {% for item in order.items.all %}
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg hover:bg-gray-50 border border-gray-200 transition-colors cursor-pointer" onclick="openProductDetails({{ item.product.id }})">
+                                    <div class="flex items-center">
+                                        {% if item.product.get_main_image %}
+                                            <img src="{{ item.product.get_main_image.url }}" alt="{{ item.product.name }}" class="w-14 h-14 object-cover rounded-md border border-gray-200">
+                                        {% else %}
+                                            <div class="w-14 h-14 bg-gray-100 rounded-md flex items-center justify-center">
+                                                <i class="fas fa-image text-gray-400 text-lg"></i>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div class="mr-4">
+                                            <div class="font-semibold text-gray-800 hover:text-orange-600 transition-colors">{{ item.product.name }}</div>
+                                            <div class="text-xs text-gray-500 mt-1">{{ item.product.brand.name }} | مقاس: {{ item.size }} | كمية: {{ item.quantity }}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-md font-semibold text-gray-700">{{ item.total_price }}₪</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Order Actions -->
+                            <div class="mt-6 flex justify-between items-center">
+                                <div class="text-sm text-gray-500">
+                                    <i class="fas fa-map-marker-alt ml-1"></i>
+                                    {{ order.customer.city }}
+                                </div>
+                                <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                    <!-- Cancel Button (only for pending, confirmed, or processing orders) -->
+                                    {% if order.status in 'pending,confirmed,processing' %}
+                                    <button class="cancel-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors font-semibold" data-order-id="{{ order.order_id }}">
+                                        <i class="fas fa-times ml-1"></i>
+                                        إلغاء الطلب
+                                    </button>
+                                    {% endif %}
+                                    
+                                    <!-- Reorder Button (for cancelled orders) -->
+                                    {% if order.status == 'cancelled' %}
+                                    <button class="reorder-btn px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors font-semibold" data-order-id="{{ order.order_id }}">
+                                        <i class="fas fa-redo ml-1"></i>
+                                        إعادة الطلب
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Remove item from cart
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const cartKey = this.dataset.cartKey;
+            const itemId = this.dataset.itemId;
+            
+            if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                const formData = new FormData();
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+                formData.append('cart_key', cartKey);
+                if (itemId) formData.append('item_id', itemId);
+                
+                fetch('{% url "shoes_view:remove_from_cart" %}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.closest('.cart-item').remove();
+                        updateCartTotals();
+                        showNotification(data.message, 'success');
+                        
+                        // Check if cart is empty
+                        if (document.querySelectorAll('.cart-item').length === 0) {
+                            location.reload();
+                        }
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('حدث خطأ في حذف المنتج', 'error');
+                });
+            }
+        });
+    });
+    
+    // Update quantity
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const action = this.dataset.action;
+            const cartItem = this.closest('.cart-item');
+            const quantityDisplay = cartItem.querySelector('.quantity-display');
+            const currentQuantity = parseInt(quantityDisplay.textContent);
+            
+            let newQuantity = currentQuantity;
+            if (action === 'increase') {
+                newQuantity = currentQuantity + 1;
+            } else if (action === 'decrease' && currentQuantity > 1) {
+                newQuantity = currentQuantity - 1;
+            } else {
+                return; // Don't allow quantity below 1
+            }
+            
+            updateQuantity(cartItem, newQuantity);
+        });
+    });
+    
+    function updateQuantity(cartItem, newQuantity) {
+        const cartKey = cartItem.querySelector('.remove-btn').dataset.cartKey;
+        const itemId = cartItem.querySelector('.remove-btn').dataset.itemId;
+        
+        const formData = new FormData();
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        formData.append('quantity', newQuantity);
+        formData.append('cart_key', cartKey);
+        if (itemId) formData.append('item_id', itemId);
+        
+        fetch('{% url "shoes_view:update_cart_quantity" %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                cartItem.querySelector('.quantity-display').textContent = newQuantity;
+                updateCartTotals();
+                showNotification('تم تحديث الكمية', 'success');
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showNotification('حدث خطأ في تحديث الكمية', 'error');
+        });
+    }
+    
+    function updateCartTotals() {
+        // Calculate new totals from visible items
+        let subtotal = 0;
+        document.querySelectorAll('.cart-item').forEach(item => {
+            const priceText = item.querySelector('.text-gray-900').textContent; // Adjusted for light theme
+            const price = parseFloat(priceText.replace('₪', ''));
+            const quantity = parseInt(item.querySelector('.quantity-display').textContent);
+            subtotal += price * quantity;
+        });
+        
+        document.getElementById('subtotal').textContent = subtotal.toFixed(2) + '₪';
+        // Update final total (considering discounts)
+        const discountPercent = {{ available_discount|default:0 }};
+        const discountAmount = (subtotal * discountPercent / 100);
+        const finalAmount = subtotal - discountAmount;
+        document.getElementById('total').textContent = finalAmount.toFixed(2) + '₪';
+    }
+    
+    function updateCartCount() {
+        // Fetch updated cart count from server
+        fetch('/api/cart-count/', {
+            method: 'GET'
+        })
+        .then(response => response.json())
+        .then(data => {
+            const cartBadges = document.querySelectorAll('.cart-badge');
+            cartBadges.forEach(badge => {
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            });
+        })
+        .catch(error => {
+                            // Could not update cart count
+        });
+    }
+    
+    function showNotification(message, type) {
+        const notificationContainer = document.getElementById('notification-container') || createNotificationContainer();
+        const notification = document.createElement('div');
+        notification.className = `p-4 rounded-lg shadow-lg mb-3 flex items-center text-white ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} ml-2"></i>
+            <span>${message}</span>
+        `;
+        
+        notificationContainer.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    function createNotificationContainer() {
+        const container = document.createElement('div');
+        container.id = 'notification-container';
+        container.className = 'fixed top-5 right-5 z-50';
+        document.body.appendChild(container);
+        return container;
+    }
+    
+    // Cancel order functionality
+    document.querySelectorAll('.cancel-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.dataset.orderId;
+            
+            if (confirm('هل أنت متأكد من إلغاء هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري الإلغاء...';
+                this.disabled = true;
+                
+                const formData = new FormData();
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+                
+                fetch(`/cancel-order/${orderId}/`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        setTimeout(() => location.reload(), 1500); // Reload to reflect changes
+                    } else {
+                        showNotification(data.message, 'error');
+                        this.innerHTML = '<i class="fas fa-times ml-1"></i> إلغاء الطلب';
+                        this.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    showNotification('حدث خطأ في إلغاء الطلب', 'error');
+                    this.innerHTML = '<i class="fas fa-times ml-1"></i> إلغاء الطلب';
+                    this.disabled = false;
+                });
+            }
+        });
+    });
+    
+    // Reorder functionality
+    function addReorderEventListener(button) {
+        button.addEventListener('click', function() {
+            const orderId = this.dataset.orderId;
+            
+            if (confirm('هل تريد إعادة طلب نفس المنتجات؟ سيتم إضافتها إلى السلة.')) {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin ml-1"></i> جاري الإضافة...';
+                this.disabled = true;
+                
+                const formData = new FormData();
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+                
+                fetch(`/reorder/${orderId}/`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        updateCartCount();
+                        setTimeout(() => {
+                            window.location.href = '{% url "shoes_view:cart" %}';
+                        }, 1500);
+                    } else {
+                        showNotification(data.message, 'error');
+                        this.innerHTML = '<i class="fas fa-redo ml-1"></i> إعادة الطلب';
+                        this.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    showNotification('حدث خطأ في إعادة الطلب', 'error');
+                    this.innerHTML = '<i class="fas fa-redo ml-1"></i> إعادة الطلب';
+                    this.disabled = false;
+                });
+            }
+        });
+    }
+    
+    // Add event listeners to existing reorder buttons
+    document.querySelectorAll('.reorder-btn').forEach(btn => {
+        addReorderEventListener(btn);
+    });
+});
+</script>
+
+<!-- CSRF Token for AJAX requests -->
+{% csrf_token %}
+{% endblock %} 

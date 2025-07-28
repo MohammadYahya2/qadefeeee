@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تأكيد الطلب - Al-Qadhafi</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            direction: rtl;
+            text-align: right;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e74c3c;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        .order-id {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .section h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+        .customer-info, .order-items {
+            margin: 15px 0;
+        }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .item:last-child {
+            border-bottom: none;
+        }
+        .totals {
+            background-color: #34495e;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        .final-total {
+            font-size: 20px;
+            font-weight: bold;
+            border-top: 1px solid #95a5a6;
+            padding-top: 10px;
+            margin-top: 15px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #bdc3c7;
+            color: #7f8c8d;
+        }
+        .payment-method {
+            background-color: #27ae60;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Al-Qadhafi - القذيفي</div>
+            <p>متجر الأحذية الرجالية</p>
+            <div class="order-id">رقم الطلب: {{ order.order_id }}</div>
+        </div>
+
+        <div class="section">
+            <h3>🎉 تم تأكيد طلبك بنجاح!</h3>
+            <p>عزيزي {{ customer.full_name }}،</p>
+            <p>شكراً لك على طلبك من متجر Al-Qadhafi. تم استلام طلبك وسيتم معالجته في أقرب وقت ممكن.</p>
+            <p><strong>تاريخ الطلب:</strong> {{ order.created_at|date:"Y-m-d H:i" }}</p>
+            <p><strong>طريقة الدفع:</strong> <span class="payment-method">{{ order.get_payment_method_display }}</span></p>
+        </div>
+
+        <div class="section">
+            <h3>📋 تفاصيل الطلب</h3>
+            <div class="order-items">
+                {% for item in order.items.all %}
+                <div class="item">
+                    <div>
+                        <strong>{{ item.product.name }}</strong><br>
+                        <small>{{ item.product.brand.name }} | مقاس: {{ item.size }} | كمية: {{ item.quantity }}</small>
+                    </div>
+                    <div>
+                        <strong>{{ item.total_price }} ₪</strong>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>👤 معلومات التوصيل</h3>
+            <div class="customer-info">
+                <p><strong>الاسم:</strong> {{ customer.full_name }}</p>
+                <p><strong>الهاتف:</strong> {{ customer.phone }}</p>
+
+                <p><strong>العنوان:</strong> {{ customer.get_full_address }}</p>
+            </div>
+        </div>
+
+        <div class="totals">
+            <div class="total-row">
+                <span>المجموع الفرعي:</span>
+                <span>{{ order.total_amount }} ₪</span>
+            </div>
+            {% if order.discount_amount > 0 %}
+            <div class="total-row">
+                <span>خصم عجلة الحظ:</span>
+                <span>-{{ order.discount_amount }} ₪</span>
+            </div>
+            {% endif %}
+            
+            {% if order.wheel_free_shipping or order.wheel_gift_name %}
+            <div class="section" style="margin-top: 15px; background-color: #e8f5e8; border-left: 4px solid #28a745;">
+                <h3 style="color: #28a745; margin-top: 0;">🎉 جوائز عجلة الحظ</h3>
+                {% if order.wheel_free_shipping %}
+                <p style="margin: 5px 0;"><strong>🚚 شحن مجاني من عجلة الحظ</strong></p>
+                {% endif %}
+                {% if order.wheel_gift_name %}
+                <p style="margin: 5px 0;"><strong>🎁 هدية من عجلة الحظ:</strong> {{ order.wheel_gift_name }}</p>
+                {% if order.wheel_gift_description %}
+                <p style="margin: 5px 0; font-size: 14px; color: #666;">{{ order.wheel_gift_description }}</p>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <div class="total-row final-total">
+                <span>المجموع النهائي:</span>
+                <span>{{ order.final_amount }} ₪</span>
+            </div>
+        </div>
+
+        {% if order.notes %}
+        <div class="section">
+            <h3>📝 ملاحظات</h3>
+            <p>{{ order.notes }}</p>
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <h3>📞 تواصل معنا</h3>
+            <p>إذا كان لديك أي استفسار حول طلبك، لا تتردد في التواصل معنا:</p>
+            <p><strong>واتساب:</strong> +970-59-123-4567</p>
+            <p><strong>البريد الإلكتروني:</strong> info@alqadhafi-shoes.com</p>
+        </div>
+
+        <div class="footer">
+            <p>شكراً لاختيارك متجر Al-Qadhafi</p>
+            <p>نتطلع لخدمتك مرة أخرى</p>
+            <small>هذا بريد إلكتروني تلقائي، يرجى عدم الرد عليه مباشرة</small>
+        </div>
+    </div>
+</body>
+</html> 

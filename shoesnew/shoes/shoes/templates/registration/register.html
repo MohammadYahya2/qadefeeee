@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}إنشاء حساب جديد - {{ site_name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/interactive-captcha.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-md mx-auto">
+        <div class="glass-dark rounded-xl p-8">
+            <h1 class="text-3xl font-bold mb-6 text-center gradient-text">إنشاء حساب جديد</h1>
+            
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Username -->
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium mb-2">
+                        {{ form.username.label }}
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="text-red-400 text-sm mt-1">
+                            {% for error in form.username.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Password -->
+                <div>
+                    <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium mb-2">
+                        {{ form.password1.label }}
+                    </label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <div class="text-red-400 text-sm mt-1">
+                            {% for error in form.password1.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Confirm Password -->
+                <div>
+                    <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium mb-2">
+                        {{ form.password2.label }}
+                    </label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="text-red-400 text-sm mt-1">
+                            {% for error in form.password2.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Interactive Captcha -->
+                <div>
+                    <div id="captcha-container-register"></div>
+                    {{ form.captcha }}
+                    {% if form.captcha.errors %}
+                        <div class="text-red-400 text-sm mt-1">
+                            {% for error in form.captcha.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300">
+                    إنشاء حساب
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-400">
+                    لديك حساب بالفعل؟ 
+                    <a href="{% url 'shoes_view:login' %}" class="text-blue-400 hover:text-blue-300">تسجيل الدخول</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/interactive-captcha.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize captcha for registration form
+    new InteractiveCaptcha('captcha-container-register');
+    
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!validateCaptcha('captcha-container-register')) {
+            e.preventDefault();
+            alert('يرجى إكمال التحقق من الهوية أولاً');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %} 

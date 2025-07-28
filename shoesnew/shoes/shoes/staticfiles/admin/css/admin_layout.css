@@ -1,0 +1,113 @@
+/* Move admin action buttons from right to bottom */
+.submit-row {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #f8f9fa !important;
+    border-top: 2px solid #28a745 !important;
+    padding: 15px 20px !important;
+    margin: 0 !important;
+    z-index: 9999 !important;
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.3) !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+/* Also target any other button containers */
+.object-tools, .object-tools li {
+    position: static !important;
+}
+
+/* Move the right side buttons to the bottom */
+.change-form .submit-row,
+.add-form .submit-row,
+.delete-confirmation .submit-row {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #f8f9fa !important;
+    border-top: 2px solid #28a745 !important;
+    padding: 15px 20px !important;
+    margin: 0 !important;
+    z-index: 9999 !important;
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.3) !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+/* Ensure buttons are properly spaced */
+.submit-row input[type="submit"],
+.submit-row input[type="button"],
+.submit-row a {
+    margin: 0 8px !important;
+    display: inline-block !important;
+    padding: 10px 20px !important;
+    border-radius: 5px !important;
+    border: none !important;
+    cursor: pointer !important;
+    font-weight: bold !important;
+    text-decoration: none !important;
+}
+
+/* Style for RTL */
+.rtl .submit-row {
+    text-align: center !important;
+}
+
+/* Make sure the main content has enough bottom padding */
+#content-main {
+    padding-bottom: 120px !important;
+}
+
+/* Also add padding to the main form */
+.form-horizontal, .form-vertical {
+    padding-bottom: 120px !important;
+}
+
+/* Add padding to the change form */
+.change-form, .add-form {
+    padding-bottom: 120px !important;
+}
+
+/* Ensure the content doesn't get hidden behind the fixed footer */
+body {
+    padding-bottom: 120px !important;
+}
+
+/* Style the buttons for better visibility */
+.submit-row .default {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+.submit-row .deletelink {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.submit-row input[type="submit"] {
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+/* Hover effects */
+.submit-row input[type="submit"]:hover {
+    opacity: 0.9 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .submit-row {
+        padding: 10px !important;
+    }
+    
+    .submit-row input[type="submit"] {
+        margin: 5px !important;
+        width: 100% !important;
+        max-width: 200px !important;
+    }
+} 

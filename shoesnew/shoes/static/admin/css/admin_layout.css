@@ -1,0 +1,17 @@
+/* Existing styles for wheel admin can be here */
+
+/* Fix for OrderItemInline width in admin */
+.inline-group.tabular tbody tr.has_original td {
+    white-space: nowrap;
+}
+
+.inline-group.tabular td.field-product .related-widget-wrapper {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.inline-group.tabular td, .inline-group.tabular th {
+    padding: 3px 8px;
+} 

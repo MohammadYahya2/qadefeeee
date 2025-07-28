@@ -1,0 +1,258 @@
+/* Interactive Captcha Styles */
+.captcha-container {
+    margin: 15px 0;
+    font-family: Arial, sans-serif;
+    direction: rtl;
+}
+
+.captcha-checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.captcha-checkbox-container:hover {
+    border-color: #007bff;
+}
+
+.captcha-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.captcha-label {
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    user-select: none;
+}
+
+.captcha-challenge {
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.captcha-challenge-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+.captcha-challenge-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.captcha-refresh,
+.captcha-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+    color: #666;
+    transition: background-color 0.3s;
+}
+
+.captcha-refresh:hover,
+.captcha-close:hover {
+    background-color: #e9ecef;
+}
+
+.captcha-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 15px;
+    background-color: white;
+}
+
+.captcha-image {
+    position: relative;
+    aspect-ratio: 1;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.captcha-image:hover {
+    border-color: #007bff;
+    transform: scale(1.02);
+}
+
+.captcha-image.selected {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.captcha-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.captcha-image.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.captcha-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+}
+
+.captcha-verify-btn,
+.captcha-skip-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.captcha-verify-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.captcha-verify-btn:hover {
+    background-color: #0056b3;
+}
+
+.captcha-skip-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.captcha-skip-btn:hover {
+    background-color: #545b62;
+}
+
+.captcha-success {
+    color: #28a745;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.captcha-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .captcha-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 10px;
+    }
+    
+    .captcha-challenge-header {
+        padding: 10px;
+    }
+    
+    .captcha-challenge-header h3 {
+        font-size: 14px;
+    }
+    
+    .captcha-actions {
+        padding: 10px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .captcha-verify-btn,
+    .captcha-skip-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .captcha-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .captcha-checkbox-container {
+        padding: 8px;
+    }
+    
+    .captcha-label {
+        font-size: 12px;
+    }
+}
+
+/* Animation for smooth transitions */
+.captcha-challenge {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading state */
+.captcha-loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.captcha-loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+} 

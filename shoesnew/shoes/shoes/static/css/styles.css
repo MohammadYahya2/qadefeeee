@@ -1,0 +1,220 @@
+/* Main styles for the shoe store */
+
+/* Global font family for all text elements */
+* {
+    font-family: 'Cairo', 'Tajawal', 'Amiri', 'Noto Sans Arabic', sans-serif !important;
+}
+
+/* Apply reasonable font-size to text elements */
+p, span, a, button, input, textarea, select, label {
+    font-size: inherit;
+}
+
+/* Preserve icons by excluding Font Awesome and icon fonts */
+.fas, .far, .fal, .fab, .fa,
+[class*="fa-"],
+.material-icons,
+.icon,
+[class*="icon-"],
+.glyphicon,
+[class*="glyphicon-"] {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 6 Pro", "Material Icons", serif !important;
+}
+
+/* Product card typography improvements */
+.product-card-brand {
+    font-family: 'Cairo', 'Tajawal', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important; /* 14px */
+    letter-spacing: 0.025em;
+    color: #f97316 !important;
+}
+
+.product-card-title {
+    font-family: 'Cairo', 'Tajawal', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important; /* 16px */
+    line-height: 1.4;
+    color: #1f2937 !important;
+}
+
+.product-card-price {
+    font-family: 'Cairo', 'Tajawal', sans-serif !important;
+    font-weight: 800 !important;
+    font-size: 1.125rem !important; /* 18px */
+    color: #dc2626 !important;
+}
+
+/* Responsive typography for mobile */
+@media (max-width: 640px) {
+    .product-card-brand {
+        font-size: 0.75rem !important; /* 12px */
+    }
+    
+    .product-card-title {
+        font-size: 0.875rem !important; /* 14px */
+        line-height: 1.3;
+    }
+    
+    .product-card-price {
+        font-size: 1rem !important; /* 16px */
+    }
+}
+
+/* General text elements */
+h1, h2, h3, h4, h5, h6,
+.title,
+.heading {
+    font-family: 'Cairo', 'Tajawal', 'Amiri', sans-serif !important;
+    font-weight: 700 !important;
+}
+
+/* Container centering fixes */
+.container {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+/* Ensure sections are properly centered */
+section {
+    width: 100% !important;
+    display: block !important;
+}
+
+/* Fix any layout issues caused by font-size overrides */
+div, section, main, article, aside, header, footer, nav {
+    font-size: inherit !important;
+}
+
+/* Line clamp utilities for better text truncation */
+.line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+}
+
+.line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+.line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+}
+
+/* Enhanced card hover effects */
+.card-hover-effect {
+    transition: all 0.3s ease;
+}
+
+.card-hover-effect:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient backgrounds for better visual appeal */
+.gradient-bg {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
+.gradient-bg-blue {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+/* Specific font sizes for different elements */
+h1 {
+    font-size: 2.5em !important;
+}
+
+h2 {
+    font-size: 2.2em !important;
+}
+
+h3 {
+    font-size: 1.8em !important;
+}
+
+h4 {
+    font-size: 1.5em !important;
+}
+
+h5 {
+    font-size: 1.2em !important;
+}
+
+h6 {
+    font-size: 1.1em !important;
+}
+
+/* Legacy product name styling - updated */
+.product-name {
+    font-size: 1.125rem !important; /* 18px */
+    line-height: 1.4;
+    font-weight: 700 !important;
+}
+
+/* Legacy brand name styling - updated */
+.brand-name {
+    font-size: 0.875rem !important; /* 14px */
+    font-weight: 600 !important;
+}
+
+/* Legacy price styling - updated */
+.price {
+    font-size: 1.25rem !important; /* 20px */
+    font-weight: 800 !important;
+}
+
+/* Button styling */
+.btn {
+    font-size: 1.1em !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced responsive text scaling */
+@media (max-width: 640px) {
+    .product-name {
+        font-size: 1rem !important; /* 16px */
+        line-height: 1.3;
+    }
+    
+    .price {
+        font-size: 1.125rem !important; /* 18px */
+    }
+    
+    h1 {
+        font-size: 1.875rem !important; /* 30px */
+    }
+    
+    h2 {
+        font-size: 1.5rem !important; /* 24px */
+    }
+    
+    h3 {
+        font-size: 1.25rem !important; /* 20px */
+    }
+    
+    /* Ensure better spacing on mobile */
+    p, span, a, button, input, textarea, select, label {
+        font-size: 0.875rem !important; /* 14px */
+    }
+} 

@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ site_name }} - الصفحة الرئيسية{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-cover bg-center" style="background-image: url('{% static 'images/heroo.png' %}');">
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black/60 z-0"></div>
+    
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="max-w-3xl mx-auto text-center">
+            
+            <!-- Text Content -->
+            <div class="animate-fade-in-up">
+                <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold mb-6 leading-tight text-white" style="font-family: 'Amiri', 'Tajawal', serif; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-orange-500">
+                        القذيفي
+                    </span>
+                    <br />
+                    <br />
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-orange-500">
+                        أقوى محل أحذية رجالي 
+                    </span>
+                    <br />
+                    <br />
+                    <span>برام الله وفلسطين</span>
+                </h1>
+                <p class="text-lg text-gray-200 mb-10 max-w-xl mx-auto" style="font-family: 'Amiri', 'Tajawal', sans-serif; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+                    تشكيلة حصرية من أرقى الأحذية الرجالية. تصميم يجمع بين الفخامة والراحة لتجربة لا مثيل لها.
+                </p>
+                <div class="flex items-center justify-center space-x-4 rtl:space-x-reverse">
+                    <a href="{% url 'shoes_view:products' %}" class="group relative inline-flex items-center justify-center bg-orange-500 text-white rounded-lg py-3 px-8 font-bold text-lg hover:bg-orange-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40">
+                        <span class="relative">تسوق الآن  </span>
+                        <i class="fas fa-arrow-left mr-3 rtl:mr-0 rtl:ml-3 transform transition-transform group-hover:-translate-x-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Brands Section -->
+{% if popular_brands %}
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-4 text-gray-800" style="font-family: 'Amiri', 'Tajawal', sans-serif;">العلامات التجارية الشريكة</h2>
+            <p class="text-gray-600 text-lg" style="font-family: 'Amiri', 'Tajawal', sans-serif;">نتعامل مع أفضل العلامات التجارية العالمية</p>
+        </div>
+        
+        <div class="grid grid-cols-4 sm:grid-cols-3 lg:grid-cols-6 gap-4 items-center">
+            {% for brand in popular_brands %}
+            <a href="{{ brand.get_absolute_url }}" class="text-center group transition-all duration-300 p-2 sm:p-4 lg:p-6 rounded-2xl hover:bg-white hover:shadow-xl hover:-translate-y-2">
+                <div class="flex justify-center items-center h-16 sm:h-20 lg:h-24 mb-2 sm:mb-3 lg:mb-4">
+                    {% if brand.logo %}
+                        <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="max-h-12 sm:max-h-16 lg:max-h-20 max-w-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300">
+                    {% else %}
+                        <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tag text-4xl text-gray-400"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <h3 class="font-semibold text-xs sm:text-sm lg:text-lg text-gray-800 group-hover:text-orange-600 transition-colors duration-300" style="font-family: 'Amiri', 'Tajawal', sans-serif;">{{ brand.name }}</h3>
+                <p class="text-xs sm:text-sm text-gray-500 font-medium" style="font-family: 'Amiri', 'Tajawal', sans-serif;">{{ brand.product_count }} منتج</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Products Section -->
+{% if featured_products %}
+<section class="py-20 bg-gradient-to-br from-white to-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-4 text-gray-800" style="font-family: 'Amiri', 'Tajawal', sans-serif;">المنتجات المميزة</h2>
+            <div class="w-20 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mb-3"></div>
+            <p class="text-gray-600 text-lg font-medium" style="font-family: 'Amiri', 'Tajawal', sans-serif;">أحدث وأفضل المنتجات المختارة بعناية</p>
+        </div>
+    
+        <div class="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+            {% for product in featured_products %}
+            <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-300 hover:-translate-y-2">
+                <a href="{{ product.get_absolute_url }}" class="block">
+                    <div class="relative overflow-hidden">
+                        {% if product.get_main_image %}
+                        <img src="{{ product.get_main_image.url }}" alt="{{ product.name }}" class="w-full h-32 sm:h-48 lg:h-56 object-cover group-hover:scale-105 transition-transform duration-500">
+                        {% else %}
+                        <div class="w-full h-32 sm:h-48 lg:h-56 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <i class="fas fa-shoe-prints text-2xl sm:text-4xl lg:text-5xl text-gray-400"></i>
+                        </div>
+                        {% endif %}
+                        <div class="absolute top-2 sm:top-3 lg:top-4 right-2 sm:right-3 lg:right-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-2 sm:px-3 py-1 text-xs font-bold rounded-full shadow-lg">
+                            مميز
+                        </div>
+                        <!-- Photo count indicator -->
+                        <div class="absolute top-2 sm:top-3 lg:top-4 left-2 sm:left-3 lg:left-4 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1 rtl:space-x-reverse">
+                            <i class="fas fa-camera"></i>
+                            <span>{{ product.images.count }}</span>
+                        </div>
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
+                    </div>
+                </a>
+                <div class="p-2 sm:p-4 lg:p-5 text-right">
+                    <div class="mb-1 sm:mb-2">
+                        <span class="product-card-brand uppercase tracking-wider">{{ product.brand.name }}</span>
+                    </div>
+                    <h3 class="product-card-title mb-2 sm:mb-3 line-clamp-2" title="{{ product.name }}">
+                        {{ product.name }}
+                    </h3>
+                    <div class="flex items-center justify-between">
+                        <span class="product-card-price">{{ product.price }} شيكل</span>
+                        <a href="{{ product.get_absolute_url }}" class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full flex items-center justify-center group-hover:from-orange-500 group-hover:to-orange-600 group-hover:text-white transition-all duration-300 text-orange-600 hover:scale-110 shadow-md">
+                            <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-12">
+            <a href="{% url 'shoes_view:products' %}" class="inline-flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold px-8 py-3 rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-orange-500/20">
+                عرض جميع المنتجات
+                <i class="fas fa-arrow-left mr-2 rtl:ml-2 rtl:mr-0 text-sm"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Products Section -->
+{% if latest_products %}
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-4 text-gray-800" style="font-family: 'Amiri', 'Tajawal', sans-serif;">أحدث المنتجات</h2>
+            <div class="w-20 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mb-3"></div>
+            <p class="text-gray-600 text-lg font-medium" style="font-family: 'Amiri', 'Tajawal', sans-serif;">آخر الإضافات إلى مجموعتنا</p>
+        </div>
+        
+        <div class="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+            {% for product in latest_products %}
+            <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-300 hover:-translate-y-2">
+                <a href="{{ product.get_absolute_url }}" class="block">
+                    <div class="relative overflow-hidden">
+                        {% if product.get_main_image %}
+                        <img src="{{ product.get_main_image.url }}" alt="{{ product.name }}" class="w-full h-32 sm:h-48 lg:h-56 object-cover group-hover:scale-105 transition-transform duration-500">
+                        {% else %}
+                        <div class="w-full h-32 sm:h-48 lg:h-56 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <i class="fas fa-shoe-prints text-2xl sm:text-4xl lg:text-5xl text-gray-400"></i>
+                        </div>
+                        {% endif %}
+                        <div class="absolute top-2 sm:top-3 lg:top-4 right-2 sm:right-3 lg:right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 sm:px-3 py-1 text-xs font-bold rounded-full shadow-lg">
+                            جديد
+                        </div>
+                        <!-- Photo count indicator -->
+                        <div class="absolute top-2 sm:top-3 lg:top-4 left-2 sm:left-3 lg:left-4 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1 rtl:space-x-reverse">
+                            <i class="fas fa-camera"></i>
+                            <span>{{ product.images.count }}</span>
+                        </div>
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
+                    </div>
+                </a>
+                <div class="p-2 sm:p-4 lg:p-5 text-right">
+                    <div class="mb-1 sm:mb-2">
+                        <span class="product-card-brand uppercase tracking-wider" style="color: #3b82f6 !important;">{{ product.brand.name }}</span>
+                    </div>
+                    <h3 class="product-card-title mb-2 sm:mb-3 line-clamp-2" title="{{ product.name }}">
+                        {{ product.name }}
+                    </h3>
+                    <div class="flex items-center justify-between">
+                        <span class="product-card-price">{{ product.price }} شيكل</span>
+                        <a href="{{ product.get_absolute_url }}" class="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full flex items-center justify-center group-hover:from-blue-500 group-hover:to-blue-600 group-hover:text-white transition-all duration-300 text-blue-600 hover:scale-110 shadow-md">
+                            <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Features Section -->
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-4 text-gray-800">لماذا تختارنا؟</h2>
+            <p class="text-gray-600 text-lg">مميزات تجعلنا الخيار الأول</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="text-center bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 hover:-translate-y-2 transform">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-shipping-fast text-2xl text-white"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-900">توصيل سريع</h3>
+                <p class="text-gray-600">نوصل طلبك في أسرع وقت ممكن</p>
+            </div>
+            
+             <div class="text-center bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 hover:-translate-y-2 transform">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-shield-alt text-2xl text-white"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-900">ضمان الجودة</h3>
+                <p class="text-gray-600">جميع منتجاتنا أصلية ومضمونة</p>
+            </div>
+            
+            <div class="text-center bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 hover:-translate-y-2 transform">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-headset text-2xl text-white"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-900">دعم 24/7</h3>
+                <p class="text-gray-600">فريق دعم متاح على مدار الساعة</p>
+            </div>
+            
+             <div class="text-center bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 hover:-translate-y-2 transform">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-gift text-2xl text-white"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-900">عروض حصرية</h3>
+                <p class="text-gray-600">خصومات وعروض مميزة للعملاء</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="py-20 container mx-auto px-4">
+    <div class="bg-gradient-to-r from-gray-800 to-black rounded-3xl p-12 text-center relative overflow-hidden">
+        <div class="absolute -right-16 -bottom-16 w-64 h-64 bg-orange-500 rounded-full opacity-20 blur-3xl"></div>
+        <div class="relative z-10">
+            <h2 class="text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-orange-500">ابدأ تسوقك الآن</h2>
+            <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                انضم إلى آلاف العملاء الراضين واكتشف تجربة تسوق فريدة مع أفضل الأحذية الرجالية
+            </p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center">
+                 <a href="{% url 'shoes_view:products' %}" class="group relative inline-flex items-center justify-center bg-orange-500 text-white rounded-lg py-3 px-8 font-bold text-lg hover:bg-orange-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40">
+                    <span class="relative">تصفح المنتجات</span>
+                    <i class="fas fa-search mr-3 rtl:mr-0 rtl:ml-3"></i>
+                </a>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'shoes_view:register' %}" class="group relative inline-flex items-center justify-center bg-gray-700 text-white rounded-lg py-3 px-8 font-bold text-lg hover:bg-gray-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl">
+                    <span class="relative">إنشاء حساب جديد</span>
+                    <i class="fas fa-user-plus mr-3 rtl:mr-0 rtl:ml-3"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Quick view functionality
+    function quickView(productId) {
+        showLoading();
+        
+        fetch(`/product/${productId}/`)
+            .then(response => response.text())
+            .then(html => {
+                hideLoading();
+                
+                // Extract product info from the response (simplified)
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const productName = doc.querySelector('h1').textContent;
+                const productPrice = doc.querySelector('.price').textContent;
+                const productImage = doc.querySelector('.product-image img').src;
+                
+                document.getElementById('quick-view-content').innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <img src="${productImage}" alt="${productName}" class="w-full h-64 object-cover rounded-xl">
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-semibold mb-4">${productName}</h4>
+                            <p class="text-2xl font-bold text-red-400 mb-6">${productPrice}</p>
+                            <div class="space-y-4">
+                                <a href="/product/${productId}/" class="btn-primary w-full py-3 rounded-lg font-medium block text-center">
+                                    عرض التفاصيل الكاملة
+                                </a>
+                                <button onclick="closeQuickView()" class="w-full py-3 border border-gray-600 rounded-lg hover:bg-gray-800 transition-colors duration-300">
+                                    إغلاق
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('quick-view-modal').classList.remove('hidden');
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Quick view error:', error);
+                showNotification('حدث خطأ في تحميل المعاينة السريعة', 'error');
+            });
+    }
+    
+    function closeQuickView() {
+        document.getElementById('quick-view-modal').classList.add('hidden');
+    }
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Intersection Observer for animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe elements for animation
+    document.querySelectorAll('.card-hover, .glass-dark').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+</script>
+{% endblock %} 

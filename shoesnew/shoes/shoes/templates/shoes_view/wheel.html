@@ -1,0 +1,909 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}عجلة الحظ - {{ site_name }}{% endblock %}
+
+{% block page_class %}inner-page{% endblock %}
+
+{% block extra_css %}
+<style>
+    .wheel-page {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .wheel-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        width: 100%;
+        max-width: none;
+        overflow: visible;
+    }
+
+    .wheel-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem 4rem 1rem;
+        position: relative;
+        min-height: 950px;
+        width: 100%;
+    }
+
+    .wheel-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+        width: 100%;
+        max-width: 700px;
+        height: auto;
+    }
+
+    #wheelCanvas, #wheelCanvasDisabled {
+        border-radius: 50%;
+        border: 10px solid #ffffff;
+        box-shadow: 0 0 40px rgba(0,0,0,0.3);
+        background: transparent;
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+        max-width: 700px;
+        max-height: 700px;
+    }
+
+    .wheel-pointer {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        border-top: 40px solid #dc2626;
+        z-index: 10;
+        filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+    }
+
+    .spin-button {
+        background: linear-gradient(45deg, #dc2626, #b91c1c);
+        color: white;
+        border: none;
+        padding: 1.5rem 4rem;
+        border-radius: 50px;
+        font-size: 1.4rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+        min-width: 300px;
+        min-height: 60px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+        margin: 3rem auto;
+        display: block;
+        z-index: 20;
+        line-height: 1.2;
+    }
+
+    .spin-button:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .spin-button:hover:not(:disabled):before {
+        left: 100%;
+    }
+
+    .spin-button:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(220, 38, 38, 0.6);
+        background: linear-gradient(45deg, #b91c1c, #991b1b);
+    }
+
+    .spin-button i {
+        margin-left: 0.5rem;
+        font-size: 1.1em;
+    }
+
+    .spin-button:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 4px 15px rgba(156, 163, 175, 0.4);
+    }
+
+    .spin-button:disabled:before {
+        display: none;
+    }
+
+    .prizes-list {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .prize-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #dc2626;
+        transition: all 0.3s ease;
+    }
+
+    .prize-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+
+    .prize-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin-left: 10px;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .rules-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .rules-list li {
+        padding: 0.75rem 0;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .rules-list li:last-child {
+        border-bottom: none;
+    }
+
+    .rules-list i {
+        color: #dc2626;
+        margin-left: 15px;
+        width: 20px;
+        font-size: 1.1rem;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        text-align: center;
+        max-width: 450px;
+        width: 90%;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .modal-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .modal-button {
+        width: 100%;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(45deg, #10b981, #059669);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #059669, #047857);
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .btn-secondary:hover {
+        background: #d1d5db;
+        transform: translateY(-2px);
+    }
+
+    .disabled-wheel {
+        opacity: 0.7;
+        filter: grayscale(30%);
+    }
+
+    .discount-banner {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    }
+
+    .discount-banner h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.3rem;
+    }
+
+    .discount-banner p {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .wheel-wrapper {
+            max-width: 600px;
+        }
+        
+        #wheelCanvas, #wheelCanvasDisabled {
+            max-width: 600px;
+            max-height: 600px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .wheel-container {
+            min-height: 750px;
+            padding: 1.5rem 1rem 3rem 1rem;
+        }
+
+        .wheel-wrapper {
+            max-width: 500px;
+            margin-bottom: 1.5rem;
+        }
+
+        #wheelCanvas, #wheelCanvasDisabled {
+            max-width: 500px;
+            max-height: 500px;
+            border: 8px solid #ffffff;
+        }
+        
+        .wheel-pointer {
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 35px solid #dc2626;
+        }
+
+        .spin-button {
+            padding: 1.3rem 3rem;
+            font-size: 1.2rem;
+            min-width: 280px;
+            min-height: 55px;
+            margin: 2rem auto;
+        }
+        
+        .wheel-card {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .wheel-container {
+            min-height: 650px;
+            padding: 1rem 0.5rem 2.5rem 0.5rem;
+        }
+
+        .wheel-wrapper {
+            max-width: 350px;
+            margin-bottom: 1rem;
+        }
+
+        #wheelCanvas, #wheelCanvasDisabled {
+            max-width: 350px;
+            max-height: 350px;
+            border: 6px solid #ffffff;
+        }
+
+        .wheel-pointer {
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #dc2626;
+        }
+        
+        .spin-button {
+            padding: 1.2rem 2.5rem;
+            font-size: 1.1rem;
+            min-width: 250px;
+            min-height: 50px;
+            margin: 1.5rem auto;
+        }
+
+        .wheel-card {
+            padding: 1rem;
+            margin: 0.5rem;
+        }
+    }
+
+    /* Animation for spinning wheel */
+    .wheel-spinning {
+        animation: spin 3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(1800deg); }
+    }
+
+    /* Header styling */
+    .wheel-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .wheel-header h1 {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 1rem;
+    }
+
+    .wheel-header p {
+        font-size: 1.2rem;
+        color: #6b7280;
+    }
+
+    .wheel-header .highlight {
+        color: #dc2626;
+        font-weight: bold;
+    }
+
+    /* Card titles */
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+    }
+
+    .card-title i {
+        margin-left: 0.5rem;
+        font-size: 1.3rem;
+    }
+
+    /* Tablet specific (iPad and larger tablets) improvements */
+    @media (min-width: 768px) and (max-width: 1297px) {
+        .wheel-section {
+            padding: 3rem 0;
+            min-height: 100vh;
+        }
+        
+        .wheel-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .wheel-canvas {
+            margin: 2rem 0;
+        }
+        
+        .spin-button {
+            font-size: 1.3rem !important;
+            padding: 1.2rem 3rem !important;
+            min-width: 320px !important;
+            min-height: 70px !important;
+            margin-top: 2rem !important;
+            border-radius: 15px !important;
+        }
+        
+        .wheel-title {
+            font-size: 2.5rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .wheel-subtitle {
+            font-size: 1.3rem !important;
+            margin-bottom: 2rem !important;
+        }
+        
+        /* Ensure proper spacing */
+        .wheel-section > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wheel-page">
+        <div class="container mx-auto px-4">
+        <div class="wheel-header">
+            <h1>
+                <i class="fas fa-dharmachakra text-orange-500"></i>
+                    عجلة الحظ
+                </h1>
+            <p>
+                <span class="highlight">20%</span> ادر العجلة واحصل على خصومات رائعة تصل إلى 
+            </p>
+    </div>
+    
+        <div class="w-full mx-auto">
+                <!-- Wheel Section -->
+                <div class="wheel-card">
+                {% if available_discount %}
+                    <!-- Discount Banner -->
+                    <div class="discount-banner">
+                        <h3><i class="fas fa-star"></i> لديك خصم متاح!</h3>
+                        <p>{{ available_discount.name }}</p>
+                    </div>
+                {% endif %}
+                
+                {% if available_free_shipping %}
+                    <!-- Free Shipping Banner -->
+                    <div class="discount-banner" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                        <h3><i class="fas fa-shipping-fast"></i> لديك شحن مجاني!</h3>
+                        <p>استخدم الشحن المجاني في طلبك القادم</p>
+                    </div>
+                {% endif %}
+                
+                {% if available_gift %}
+                    <!-- Gift Banner -->
+                    <div class="discount-banner" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                        <h3><i class="fas fa-gift"></i> لديك هدية متاحة!</h3>
+                        <p>{{ available_gift.name }}</p>
+                        {% if available_gift.description %}
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem; opacity: 0.9;">{{ available_gift.description }}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% if can_spin_today %}
+                 <div class="wheel-container">
+                    <div class="wheel-wrapper">
+                                <div class="wheel-pointer"></div>
+                        <canvas id="wheelCanvas" width="700" height="700"></canvas>
+                 </div>
+                 
+                        <button id="spinButton" class="spin-button">
+                            <i class="fas fa-play ml-2"></i>دوّر الآن!
+                </button>
+                </div>
+                {% else %}
+                    <div class="wheel-container">
+                        <div class="wheel-wrapper disabled-wheel">
+                                <div class="wheel-pointer"></div>
+                        <canvas id="wheelCanvasDisabled" width="700" height="700"></canvas>
+                                    </div>
+                        <a href="{% url 'shoes_view:products' %}" class="spin-button">
+                            <i class="fas fa-shopping-bag ml-2"></i>
+                    تسوق الآن
+                </a>
+            </div>
+                                    {% endif %}
+                </div>
+                
+            <!-- Rules Section -->
+                <div class="wheel-card">
+                <h3 class="card-title">
+                    <i class="fas fa-list-check text-blue-500"></i>
+                        القواعد والشروط
+                    </h3>
+                        <ul class="rules-list">
+                            <li><i class="fas fa-clock"></i> يمكن لعب العجلة مرة واحدة يومياً</li>
+                            <li><i class="fas fa-hourglass-half"></i> الخصم صالح لمدة 24 ساعة فقط</li>
+                            <li><i class="fas fa-shopping-bag"></i> يطبق على جميع المنتجات</li>
+                            <li><i class="fas fa-users"></i> متاح لجميع المستخدمين</li>
+                    </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Result Modal -->
+<div id="resultModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div id="resultIcon" class="modal-icon"></div>
+        <h2 id="resultTitle" class="text-2xl font-bold mb-4"></h2>
+        <p id="resultMessage" class="text-gray-600 mb-6"></p>
+        <div>
+            <button id="useDiscountButton" class="modal-button btn-primary" style="display: none;">
+                <i class="fas fa-shopping-bag ml-2"></i>
+                <span id="buttonText">تسوق الآن واستخدم الخصم</span>
+            </button>
+            <button id="closeModalButton" class="modal-button btn-secondary">
+                متابعة
+            </button>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Parse wheel configuration from server
+    let wheelSegments = [];
+        let spinResult = null;
+    
+    try {
+        const rawConfigs = '{{ wheel_configs_json|safe }}';
+            const wheelConfigs = JSON.parse(rawConfigs || '[]');
+        
+                if (wheelConfigs.length > 0) {
+            wheelSegments = wheelConfigs.map((config, index) => {
+                let text = '';
+                if (config.prize_type === 'discount') {
+                    text = `خصم ${config.value}%`;
+                } else if (config.prize_type === 'free_shipping') {
+                    text = 'شحن مجاني';
+                } else if (config.prize_type === 'gift') {
+                    text = config.name; // Use the gift name
+                } else {
+                    text = 'حاول مرة أخرى';
+                }
+                
+                return {
+                    text: text,
+                    color: config.color || '#cccccc',
+                    prize_type: config.prize_type,
+                    value: config.value,
+                    id: config.id,
+                    name: config.name,
+                    can_win: config.can_win
+                };
+            });
+        } else {
+                // Fallback segments
+            wheelSegments = [
+                { text: 'خصم 5%', color: '#FF6B6B', prize_type: 'discount', value: 5, can_win: true, id: 16 },
+                { text: 'خصم 10%', color: '#45B7D1', prize_type: 'discount', value: 10, can_win: false, id: 17 },
+                { text: 'خصم 15%', color: '#FFEAA7', prize_type: 'discount', value: 15, can_win: false, id: 18 },
+                { text: 'خصم 20%', color: '#DDA0DD', prize_type: 'discount', value: 20, can_win: false, id: 19 },
+                { text: 'شحن مجاني', color: '#4ECDC4', prize_type: 'free_shipping', value: 0, can_win: true, id: 20 },
+                { text: 'حاول مرة أخرى', color: '#96CEB4', prize_type: 'no_prize', value: 0, can_win: true, id: 21 }
+            ];
+        }
+        
+    } catch (e) {
+        console.error('Error parsing wheel configs:', e);
+            return;
+        }
+    
+    // Get active canvas
+            const canvas = document.getElementById('wheelCanvas');
+    const disabledCanvas = document.getElementById('wheelCanvasDisabled');
+    const activeCanvas = canvas || disabledCanvas;
+            
+        if (!activeCanvas) {
+        console.error('No canvas found!');
+        return;
+    }
+    
+        const ctx = activeCanvas.getContext('2d');
+    const centerX = activeCanvas.width / 2;
+    const centerY = activeCanvas.height / 2;
+    const radius = Math.min(activeCanvas.width, activeCanvas.height) / 2 - 20;
+    
+    // Wheel animation variables
+    let isSpinning = false;
+    let currentRotation = 0;
+    let targetRotation = 0;
+    let animationId = null;
+    
+    // Draw wheel function
+    function drawWheel(rotation = 0) {
+        ctx.clearRect(0, 0, activeCanvas.width, activeCanvas.height);
+        
+        const segmentAngle = (2 * Math.PI) / wheelSegments.length;
+        
+        // Draw segments starting from top (12 o'clock)
+        wheelSegments.forEach((segment, index) => {
+            const startAngle = (index * segmentAngle) + rotation - (Math.PI / 2);
+            const endAngle = ((index + 1) * segmentAngle) + rotation - (Math.PI / 2);
+            
+            // Draw segment
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.lineTo(centerX, centerY);
+            ctx.fillStyle = segment.can_win ? segment.color : segment.color + '60';
+            ctx.fill();
+            
+            // Add diagonal pattern for non-winnable segments
+            if (!segment.can_win) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.lineTo(centerX, centerY);
+                ctx.clip();
+                
+                ctx.strokeStyle = '#00000020';
+                ctx.lineWidth = 1;
+                ctx.globalAlpha = 0.3;
+                
+                for (let x = -radius; x <= radius; x += 15) {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX + x, centerY - radius);
+                    ctx.lineTo(centerX + x + radius, centerY);
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+            }
+            
+            // Draw text
+            const textAngle = startAngle + (segmentAngle / 2);
+            const textX = centerX + Math.cos(textAngle) * (radius * 0.7);
+            const textY = centerY + Math.sin(textAngle) * (radius * 0.7);
+            
+            ctx.save();
+            ctx.translate(textX, textY);
+            ctx.rotate(textAngle + Math.PI / 2);
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 28px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(segment.text, 0, 0);
+            ctx.restore();
+        });
+        
+        // Draw center circle
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 30, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = '#333333';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+    }
+    
+    // Animation function
+    function animate() {
+        const difference = targetRotation - currentRotation;
+        const speed = difference * 0.02;
+        
+        currentRotation += speed;
+        drawWheel(currentRotation);
+        
+        if (Math.abs(difference) > 0.01) {
+            animationId = requestAnimationFrame(animate);
+        } else {
+            console.log('🎯 Animation complete, calling onSpinComplete');
+            currentRotation = targetRotation;
+            drawWheel(currentRotation);
+            isSpinning = false;
+            onSpinComplete();
+        }
+    }
+    
+    // Function removed - new API provides exact rotation angle
+        
+    // Spin using exact rotation from API - NO FRONTEND CALCULATIONS
+    function spinToRotation(targetRotationRadians) {
+        console.log('🎯 spinToRotation called with:', targetRotationRadians);
+        
+        if (isSpinning) {
+            console.log('🎯 Already spinning, returning');
+            return;
+        }
+        
+        isSpinning = true;
+        
+        // Use the exact rotation calculated by the backend
+        targetRotation = currentRotation + targetRotationRadians;
+        
+        console.log('🎯 Setting targetRotation to:', targetRotation);
+        console.log('🎯 currentRotation:', currentRotation);
+        console.log('🎯 Starting animation');
+        
+        animate();
+    }
+    
+
+    
+        // Handle spin completion
+    function onSpinComplete() {
+        console.log('🎯 onSpinComplete called');
+        console.log('🎯 spinResult:', spinResult);
+        
+        // Update button
+        const spinButton = document.getElementById('spinButton');
+        if (spinButton) {
+            spinButton.disabled = false;
+            spinButton.innerHTML = '<i class="fas fa-play ml-2"></i>دوّر الآن!';
+        }
+        
+        // Show result after delay
+        setTimeout(() => {
+            console.log('🎯 About to call showResult after delay');
+            if (spinResult) {
+                console.log('🎯 spinResult exists, calling showResult');
+                showResult(spinResult);
+            } else {
+                console.log('🎯 No spinResult available!');
+            }
+        }, 1000);
+    }
+    
+    // Handle spin button click
+    function handleSpin() {
+        if (isSpinning) return;
+    
+        const spinButton = document.getElementById('spinButton');
+        if (!spinButton) return;
+        
+        spinButton.disabled = true;
+        spinButton.innerHTML = '<i class="fas fa-sync fa-spin ml-2"></i>جاري الدوران...';
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+                fetch('{% url "shoes_view:wheel_api_v2" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'spin=true',
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('🎯 API response:', data);
+            spinResult = data;
+            console.log('🎯 spinResult set to:', spinResult);
+            
+            if (data.target_rotation_radians !== undefined) {
+                console.log('🎯 Starting wheel rotation with:', data.target_rotation_radians);
+                spinToRotation(data.target_rotation_radians);
+            } else {
+                console.error('🎯 No target_rotation_radians in response:', data);
+                spinButton.disabled = false;
+                spinButton.innerHTML = '<i class="fas fa-play ml-2"></i>دوّر الآن!';
+                showResult(data);
+            }
+        })
+    .catch(error => {
+            console.error('❌ Network error:', error);
+            spinButton.disabled = false;
+            spinButton.innerHTML = '<i class="fas fa-play ml-2"></i>دوّر الآن!';
+            
+        showResult({
+            success: false,
+                message: 'حدث خطأ، حاول مرة أخرى'
+            });
+        });
+    }
+    
+        // Show result modal
+    function showResult(data) {
+        const modal = document.getElementById('resultModal');
+        const icon = document.getElementById('resultIcon');
+        const title = document.getElementById('resultTitle');
+        const message = document.getElementById('resultMessage');
+        const discountBtn = document.getElementById('useDiscountButton');
+        
+        // Always show the server's result - ignore success flag
+        if (data.target_index !== undefined && data.target_index >= 0 && data.target_index < wheelSegments.length) {
+            // Get the prize name from the wheel segments based on server's target_index
+            const prizeSegment = wheelSegments[data.target_index];
+            const prizeName = prizeSegment.text;
+            
+            // Show appropriate icon and button text based on prize type
+            const buttonText = document.getElementById('buttonText');
+            if (prizeSegment.prize_type === 'discount' && prizeSegment.value > 0) {
+                icon.innerHTML = '🎉';
+                discountBtn.style.display = 'block';
+                buttonText.textContent = 'تسوق الآن واستخدم الخصم';
+            } else if (prizeSegment.prize_type === 'free_shipping') {
+                icon.innerHTML = '🚚';
+                discountBtn.style.display = 'block';
+                buttonText.textContent = 'تسوق الآن مع الشحن المجاني';
+            } else if (prizeSegment.prize_type === 'gift') {
+                icon.innerHTML = '🎁';
+                discountBtn.style.display = 'block';
+                buttonText.textContent = 'تسوق الآن واحصل على هديتك';
+            } else if (prizeSegment.prize_type === 'no_prize') {
+                icon.innerHTML = '😔';
+                discountBtn.style.display = 'none';
+            } else {
+                icon.innerHTML = '🎉';
+                discountBtn.style.display = 'block';
+                buttonText.textContent = 'تسوق الآن';
+            }
+            
+            // Display just the prize text
+            title.textContent = prizeName;
+            message.textContent = '';
+        } else {
+            // Only show error if we truly have no target_index
+            icon.innerHTML = '❌';
+            title.textContent = 'حدث خطأ';
+            message.textContent = data.message || 'حاول مرة أخرى';
+            discountBtn.style.display = 'none';
+        }
+        
+        modal.style.display = 'flex';
+    }
+    
+    // Close modal
+    function closeModal() {
+        document.getElementById('resultModal').style.display = 'none';
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    }
+    
+    // Initialize wheel
+    drawWheel();
+    
+    // Event listeners
+    const spinButton = document.getElementById('spinButton');
+    if (spinButton) {
+        spinButton.addEventListener('click', handleSpin);
+    }
+    
+    const closeModalButton = document.getElementById('closeModalButton');
+    if (closeModalButton) {
+        closeModalButton.addEventListener('click', closeModal);
+    }
+    
+    const useDiscountButton = document.getElementById('useDiscountButton');
+    if (useDiscountButton) {
+        useDiscountButton.addEventListener('click', () => {
+                window.location.href = '{% url "shoes_view:products" %}';
+            });
+        }
+});
+</script>
+{% endblock %} 

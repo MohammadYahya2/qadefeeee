@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تفاصيل الطلب {{ order.order_id }} - {{ site_name }}{% endblock %}
+
+{% block extra_head %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold gradient-text">تفاصيل الطلب</h1>
+                <p class="text-gray-400">رقم الطلب: {{ order.order_id }}</p>
+            </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="glass-dark rounded-xl p-6 mb-8">
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <!-- Order Info -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 text-red-400">معلومات الطلب</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">رقم الطلب:</span>
+                            <span class="font-mono font-semibold">{{ order.order_id }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">تاريخ الطلب:</span>
+                            <span>{{ order.created_at|date:"d/m/Y H:i" }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">حالة الطلب:</span>
+                            <span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-sm">{{ order.get_status_display }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">طريقة الدفع:</span>
+                            <span>{{ order.get_payment_method_display }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">تمت الطباعة:</span>
+                            <span class="{% if order.printed %}text-green-400{% else %}text-red-400{% endif %}">
+                                {% if order.printed %}نعم{% else %}لا{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Customer Info -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 text-red-400">معلومات العميل</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">الاسم:</span>
+                            <span>{{ order.customer.full_name }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">الهاتف:</span>
+                            <span dir="ltr">{{ order.customer.phone }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">المدينة:</span>
+                            <span>{{ order.customer.city }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">العنوان:</span>
+                            <span>{{ order.customer.street_address }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="glass-dark rounded-xl p-6 mb-8">
+            <h3 class="text-lg font-semibold mb-4 text-red-400">المنتجات المطلوبة</h3>
+            <div class="space-y-4">
+                {% for item in order.items.all %}
+                <div class="flex items-center justify-between p-4 bg-gray-800/50 rounded-lg">
+                    <div class="flex items-center space-x-4 rtl:space-x-reverse">
+                        {% if item.product.get_main_image %}
+                        <img src="{{ item.product.get_main_image.url }}" alt="{{ item.product.name }}" 
+                             class="w-16 h-16 object-cover rounded-lg">
+                        {% endif %}
+                        <div>
+                            <h4 class="font-semibold">{{ item.product.name }}</h4>
+                            <p class="text-sm text-gray-400">{{ item.product.brand.name }}</p>
+                            {% if item.color %}
+                            <p class="text-sm text-gray-400">اللون: {{ item.color.name }}</p>
+                            {% endif %}
+                            <p class="text-sm text-gray-400">المقاس: {{ item.size }}</p>
+                        </div>
+                    </div>
+                    <div class="text-left">
+                        <p class="font-semibold">{{ item.price }} شيكل</p>
+                        <p class="text-sm text-gray-400">الكمية: {{ item.quantity }}</p>
+                        <p class="text-sm font-semibold text-red-400">المجموع: {{ item.total_price }} شيكل</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Wheel Prizes -->
+        {% if order.discount_amount > 0 or order.wheel_free_shipping or order.wheel_gift_name %}
+        <div class="glass-dark rounded-xl p-6 mb-8">
+            <h3 class="text-lg font-semibold mb-4 text-red-400">جوائز عجلة الحظ</h3>
+            <div class="space-y-2">
+                {% if order.discount_amount > 0 %}
+                <div class="flex justify-between">
+                    <span class="text-gray-400">خصم من العجلة:</span>
+                    <span class="text-green-400 font-semibold">{{ order.discount_amount }} شيكل</span>
+                </div>
+                {% endif %}
+                {% if order.wheel_free_shipping %}
+                <div class="flex justify-between">
+                    <span class="text-gray-400">شحن مجاني:</span>
+                    <span class="text-green-400 font-semibold">نعم</span>
+                </div>
+                {% endif %}
+                {% if order.wheel_gift_name %}
+                <div class="flex justify-between">
+                    <span class="text-gray-400">هدية:</span>
+                    <span class="text-green-400 font-semibold">{{ order.wheel_gift_name }}</span>
+                </div>
+                {% if order.wheel_gift_description %}
+                <div class="flex justify-between">
+                    <span class="text-gray-400">وصف الهدية:</span>
+                    <span class="text-gray-300">{{ order.wheel_gift_description }}</span>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Order Summary -->
+        <div class="glass-dark rounded-xl p-6 mb-8">
+            <h3 class="text-lg font-semibold mb-4 text-red-400">ملخص الطلب</h3>
+            <div class="space-y-2">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">المجموع الفرعي:</span>
+                    <span>{{ order.total_amount }} شيكل</span>
+                </div>
+                {% if order.discount_amount > 0 %}
+                <div class="flex justify-between text-green-400">
+                    <span>الخصم:</span>
+                    <span>-{{ order.discount_amount }} شيكل</span>
+                </div>
+                {% endif %}
+                <div class="border-t border-gray-600 pt-2 mt-2">
+                    <div class="flex justify-between text-lg font-bold">
+                        <span>المجموع النهائي:</span>
+                        <span class="text-red-400">{{ order.final_amount }} شيكل</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        {% if order.notes %}
+        <div class="glass-dark rounded-xl p-6 mb-8">
+            <h3 class="text-lg font-semibold mb-4 text-red-400">ملاحظات</h3>
+            <p class="text-gray-300">{{ order.notes }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="text-center space-x-4 rtl:space-x-reverse">
+            <a href="{% url 'shoes_view:products' %}" class="btn-primary px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-all">
+                <i class="fas fa-shopping-bag ml-2"></i>
+                متابعة التسوق
+            </a>
+            
+            <a href="{% url 'shoes_view:home' %}" class="px-6 py-3 border border-gray-600 rounded-lg hover:border-red-500 transition-colors">
+                <i class="fas fa-home ml-2"></i>
+                العودة للرئيسية
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Print order function
+function printOrder(orderId) {
+    const printBtn = document.getElementById('printOrderBtn');
+    const originalText = printBtn.innerHTML;
+    
+    // Show loading state
+    printBtn.disabled = true;
+    printBtn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i>جاري الطباعة...';
+    
+    // Get CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+    fetch(`/print-order/${orderId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showMessage(data.message, 'success');
+            printBtn.innerHTML = '<i class="fas fa-check ml-2"></i>تم الطباعة';
+            setTimeout(() => {
+                printBtn.innerHTML = originalText;
+                printBtn.disabled = false;
+            }, 3000);
+        } else {
+            showMessage(data.message, 'error');
+            printBtn.innerHTML = originalText;
+            printBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Print error:', error);
+        showMessage('حدث خطأ أثناء الطباعة', 'error');
+        printBtn.innerHTML = originalText;
+        printBtn.disabled = false;
+    });
+}
+
+// Show message function
+function showMessage(message, type) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all transform translate-x-full`;
+    messageDiv.className += type === 'success' ? ' bg-green-500 text-white' : ' bg-red-500 text-white';
+    messageDiv.textContent = message;
+    
+    document.body.appendChild(messageDiv);
+    
+    // Animate in
+    setTimeout(() => {
+        messageDiv.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        messageDiv.classList.add('translate-x-full');
+        setTimeout(() => {
+            document.body.removeChild(messageDiv);
+        }, 300);
+    }, 5000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Print order functionality
+    const printBtn = document.getElementById('printOrderBtn');
+    if (printBtn) {
+        printBtn.addEventListener('click', function() {
+            const orderId = this.getAttribute('data-order-id');
+            printOrder(orderId);
+        });
+    }
+});
+
+// Add styles
+const style = document.createElement('style');
+style.textContent = `
+    .btn-secondary {
+        background: linear-gradient(135deg, #6B7280, #4B5563);
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #4B5563, #374151);
+    }
+    
+    .btn-secondary:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %} 

@@ -1,0 +1,70 @@
+<div class="flex justify-between items-center p-4 border-b">
+    <h2 class="text-xl font-bold">عربتي ({{ num_items }})</h2>
+    <button id="close-cart-btn" class="text-gray-500 hover:text-black">
+        <i class="fas fa-times text-2xl"></i>
+    </button>
+</div>
+
+{% if cart_items %}
+    <!-- Offer progress bar - Placeholder -->
+    <div class="p-4 border-b text-center">
+        <p class="text-sm mb-2">أضف المزيد من المنتجات للحصول على خصم!</p>
+        <div class="w-full bg-gray-200 rounded-full h-1.5">
+            <div class="bg-green-600 h-1.5 rounded-full" style="width: 50%"></div>
+        </div>
+    </div>
+
+    <div class="flex-grow overflow-y-auto p-4 space-y-4">
+        {% for item in cart_items %}
+            <div class="flex cart-item-side" data-item-id="{{ item.id }}">
+                {% if item.product.get_main_image %}
+                <img src="{{ item.product.get_main_image.url }}" alt="{{ item.product.name }}" class="w-20 h-24 object-cover rounded-md border">
+                {% else %}
+                <div class="w-20 h-24 bg-gray-100 rounded-md border flex items-center justify-center">
+                    <i class="fas fa-shoe-prints text-gray-400"></i>
+                </div>
+                {% endif %}
+                <div class="mr-4 flex-grow flex flex-col">
+                    <h3 class="font-semibold text-md">{{ item.product.name }}</h3>
+                    <p class="text-sm text-gray-500">مقاس: {{ item.size }}</p>
+                    <div class="flex items-center justify-between mt-auto">
+                        <div class="flex items-center border rounded-md">
+                            <button class="quantity-btn-side px-3 py-1 text-lg" data-action="decrease" data-item-id="{{ item.id }}">-</button>
+                            <span class="px-4 quantity-display-side">{{ item.quantity }}</span>
+                            <button class="quantity-btn-side px-3 py-1 text-lg" data-action="increase" data-item-id="{{ item.id }}">+</button>
+                        </div>
+                        <span class="font-bold text-lg">₪{{ item.product.price }}</span>
+                    </div>
+                </div>
+                <button class="remove-btn-side text-gray-400 hover:text-red-500 ml-2 self-start" data-item-id="{{ item.id }}">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="p-4 border-t mt-auto bg-white shadow-inner">
+        {% if available_discount > 0 %}
+        <div class="flex justify-between font-semibold text-green-600 mb-2">
+            <span>خصم عجلة الحظ ({{ available_discount }}%)</span>
+            <span>-₪{{ discount_amount|floatformat:2 }}</span>
+        </div>
+        {% endif %}
+        <div class="flex justify-between font-bold text-lg mb-4">
+            <span>المجموع الفرعي</span>
+            <span>₪{{ final_amount|floatformat:2 }}</span>
+        </div>
+        <a href="{% url 'shoes_view:checkout' %}" class="block w-full text-center bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-all">
+            الانتقال إلى الدفع
+        </a>
+    </div>
+{% else %}
+    <div class="flex flex-col items-center justify-center h-full text-center p-4">
+        <i class="fas fa-shopping-bag text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-2xl font-bold mb-2">سلتك فارغة</h3>
+        <p class="text-gray-500 mb-6">يبدو أنك لم تضف أي شيء بعد.</p>
+        <button id="close-cart-and-shop" class="mt-4 bg-orange-500 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-orange-600">
+            متابعة التسوق
+        </button>
+    </div>
+{% endif %} 

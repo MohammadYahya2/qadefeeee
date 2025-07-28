@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تواصل معنا - {{ site_name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/interactive-captcha.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4 gradient-text">تواصل معنا</h1>
+            <p class="text-xl text-gray-400">نحن هنا لمساعدتك في أي استفسار</p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Contact Form -->
+            <div class="glass-dark rounded-xl p-8">
+                <h2 class="text-2xl font-bold mb-6 text-center">أرسل لنا رسالة</h2>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="bg-green-500/20 border border-green-500 rounded-lg p-4 mb-6">
+                            <p class="text-green-400">{{ message }}</p>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Name -->
+                    <div>
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium mb-2">
+                            {{ form.name.label }}
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-red-400 text-sm mt-1">
+                                {% for error in form.name.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+
+                    
+                    <!-- Phone -->
+                    <div>
+                        <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium mb-2">
+                            {{ form.phone.label }}
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <div class="text-red-400 text-sm mt-1">
+                                {% for error in form.phone.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Subject -->
+                    <div>
+                        <label for="{{ form.subject.id_for_label }}" class="block text-sm font-medium mb-2">
+                            {{ form.subject.label }}
+                        </label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                            <div class="text-red-400 text-sm mt-1">
+                                {% for error in form.subject.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Message -->
+                    <div>
+                        <label for="{{ form.message.id_for_label }}" class="block text-sm font-medium mb-2">
+                            {{ form.message.label }}
+                        </label>
+                        {{ form.message }}
+                        {% if form.message.errors %}
+                            <div class="text-red-400 text-sm mt-1">
+                                {% for error in form.message.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Interactive Captcha -->
+                    <div>
+                        <div id="captcha-container-contact"></div>
+                        {{ form.captcha }}
+                        {% if form.captcha.errors %}
+                            <div class="text-red-400 text-sm mt-1">
+                                {% for error in form.captcha.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300">
+                        إرسال الرسالة
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="space-y-6">
+                <div class="glass-dark rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">معلومات التواصل</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-phone text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">واتساب</h4>
+                                <p class="text-gray-400">+972 59 991 9877</p>
+                            </div>
+                        </div>
+                        
+                        
+
+                        
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-map-marker-alt text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">العنوان</h4>
+                                <p class="text-gray-400">فلسطين - رام الله -عمارة البكري - الطابق الثالث </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-dark rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">ساعات العمل</h3>
+                    
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">9:00 ص - 10:00 م</span>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="glass-dark rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">تواصل سريع</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="text-center">
+                            <p class="text-gray-300 mb-4">امسح الرمز للتواصل عبر واتساب</p>
+                            <a href="https://wa.me/972599919877" target="_blank" class="inline-block bg-white rounded-lg p-4 hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                                <img src="{% load static %}{% static 'qr_codes/whatsapp_qr.png' %}" 
+                                     alt="WhatsApp QR Code" 
+                                     class="w-48 h-48 object-contain mx-auto"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div class="w-48 h-48 bg-gray-100 rounded-lg flex flex-col items-center justify-center text-gray-600 hidden">
+                                    <i class="fas fa-qrcode text-6xl mb-2"></i>
+                                    <p class="text-sm text-center">QR Code<br>Coming Soon</p>
+                                </div>
+                            </a>
+                            <p class="text-sm text-gray-400 mt-2">اضغط على الرمز أو امسحه للتواصل المباشر</p>
+                        </div>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/interactive-captcha.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize captcha for contact form
+    new InteractiveCaptcha('captcha-container-contact');
+    
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!validateCaptcha('captcha-container-contact')) {
+            e.preventDefault();
+            alert('يرجى إكمال التحقق من الهوية أولاً');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %} 

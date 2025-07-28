@@ -1,0 +1,247 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    
+    {% if original and original.pk %}
+    <!-- Print Order Button -->
+    <li>
+        <a href="#" id="printOrderBtn" class="print-btn" data-order-id="{{ original.order_id }}">
+            <i class="fas fa-print"></i> طباعة الطلب
+        </a>
+    </li>
+    
+    <!-- View Order Detail Button -->
+    <li>
+        <a href="{% url 'shoes_view:order_detail' original.order_id %}" class="view-btn" target="_blank">
+            <i class="fas fa-eye"></i> عرض التفاصيل
+        </a>
+    </li>
+    
+    <!-- Test Printer Button -->
+    <li>
+        <a href="#" id="testPrinterBtn" class="test-btn">
+            <i class="fas fa-wrench"></i> اختبار الطابعة
+        </a>
+    </li>
+    {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .object-tools {
+            float: right;
+            clear: both;
+            margin-left: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .object-tools li {
+            float: right;
+            margin-left: 10px;
+            margin-right: 0;
+            display: block;
+        }
+        
+        .object-tools a {
+            display: inline-block;
+            padding: 8px 16px !important;
+            margin: 2px !important;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            white-space: nowrap;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .object-tools .print-btn {
+            background: #28a745 !important;
+            color: white !important;
+        }
+        
+        .object-tools .print-btn:hover {
+            background: #218838 !important;
+        }
+        
+        .object-tools .view-btn {
+            background: #007cba !important;
+            color: white !important;
+        }
+        
+        .object-tools .view-btn:hover {
+            background: #005a87 !important;
+        }
+        
+        .object-tools .test-btn {
+            background: #6c757d !important;
+            color: white !important;
+        }
+        
+        .object-tools .test-btn:hover {
+            background: #545b62 !important;
+        }
+        
+        .print-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            max-width: 400px;
+        }
+        
+        .print-message.success {
+            background-color: #28a745;
+        }
+        
+        .print-message.error {
+            background-color: #dc3545;
+        }
+        
+        .print-message.info {
+            background-color: #17a2b8;
+        }
+        
+        .btn-loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        /* Clear float issues */
+        .object-tools::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .object-tools li {
+                float: none;
+                display: block;
+                margin: 5px 0;
+            }
+            
+            .object-tools a {
+                display: block;
+                width: 100%;
+                margin: 2px 0 !important;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+    {{ block.super }}
+    <script>
+    (function($) {
+        // Print Order functionality
+        $('#printOrderBtn').click(function(e) {
+            e.preventDefault();
+            var btn = $(this);
+            var orderId = btn.data('order-id');
+            var originalText = btn.html();
+            
+            // Show loading state
+            btn.addClass('btn-loading');
+            btn.html('<i class="fas fa-spinner fa-spin"></i> جاري الطباعة...');
+            
+            // Get CSRF token
+            var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+            
+            // Make AJAX request
+            $.ajax({
+                url: '/admin/custom/print-order/' + orderId + '/',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                success: function(data) {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        btn.html('<i class="fas fa-check"></i> تم الطباعة');
+                        setTimeout(function() {
+                            btn.html(originalText);
+                            btn.removeClass('btn-loading');
+                        }, 3000);
+                    } else {
+                        showMessage(data.message, 'error');
+                        btn.html(originalText);
+                        btn.removeClass('btn-loading');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showMessage('حدث خطأ أثناء الطباعة', 'error');
+                    btn.html(originalText);
+                    btn.removeClass('btn-loading');
+                }
+            });
+        });
+        
+        // Test Printer functionality
+        $('#testPrinterBtn').click(function(e) {
+            e.preventDefault();
+            var btn = $(this);
+            var originalText = btn.html();
+            
+            // Show loading state
+            btn.addClass('btn-loading');
+            btn.html('<i class="fas fa-spinner fa-spin"></i> جاري الاختبار...');
+            
+            // Get CSRF token
+            var csrfToken = $('[name=csrfmiddlewaretoken]').val();
+            
+            // Make AJAX request
+            $.ajax({
+                url: '/admin/custom/test-printer/',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                success: function(data) {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        btn.html('<i class="fas fa-check"></i> اختبار ناجح');
+                        setTimeout(function() {
+                            btn.html(originalText);
+                            btn.removeClass('btn-loading');
+                        }, 3000);
+                    } else {
+                        showMessage(data.message, 'error');
+                        btn.html(originalText);
+                        btn.removeClass('btn-loading');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showMessage('حدث خطأ في اختبار الطابعة', 'error');
+                    btn.html(originalText);
+                    btn.removeClass('btn-loading');
+                }
+            });
+        });
+        
+        // Show message function
+        function showMessage(message, type) {
+            var messageDiv = $('<div class="print-message ' + type + '">' + message + '</div>');
+            $('body').append(messageDiv);
+            
+            // Remove after 5 seconds
+            setTimeout(function() {
+                messageDiv.fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, 5000);
+        }
+    })(django.jQuery);
+    </script>
+{% endblock %} 

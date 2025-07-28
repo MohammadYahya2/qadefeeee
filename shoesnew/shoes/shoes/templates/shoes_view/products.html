@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}المتجر - {{ site_name }}{% endblock %}
+
+{% block page_class %}inner-page{% endblock %}
+
+{% block content %}
+<style>
+    .filter-section {
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .filter-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .form-checkbox:checked {
+        background-color: #f97316;
+        border-color: #f97316;
+    }
+    .price-range-input {
+         width: 100%;
+         padding: 0.5rem;
+         border: 1px solid #d1d5db;
+         border-radius: 0.375rem;
+         text-align: center;
+    }
+    .size-button.selected {
+        background-color: #ea580c;
+        color: white;
+        border-color: #ea580c;
+    }
+</style>
+
+<!-- Shop Hero Section -->
+<div class="bg-gray-50 pt-32 pb-16">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-800" style="font-family: 'Amiri', 'Tajawal', sans-serif;">المتجر</h1>
+        <p class="mt-3 text-lg text-gray-600">اكتشف أحدث مجموعاتنا من الأحذية العصرية والأنيقة</p>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-12">
+    <div class="flex flex-col lg:flex-row gap-8">
+        
+        <!-- Filters Sidebar -->
+        <aside class="w-full lg:w-1/4 xl:w-1/5">
+            <!-- Mobile Filter Toggle Button -->
+            <div class="lg:hidden mb-4">
+                <button id="mobile-filter-toggle" class="w-full bg-white border border-gray-300 rounded-lg p-3 flex items-center justify-between text-gray-700 hover:bg-gray-50">
+                    <span class="flex items-center">
+                        <i class="fas fa-filter text-orange-500 mr-2"></i>
+                        <span class="font-semibold">الفلاتر</span>
+                    </span>
+                    <i class="fas fa-chevron-down transition-transform" id="filter-chevron"></i>
+                </button>
+            </div>
+            
+            <!-- Filter Form -->
+            <form id="filter-form" method="get" class="bg-white p-4 lg:p-6 rounded-lg shadow-sm sticky top-28 hidden lg:block">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg lg:text-xl font-bold text-gray-800">
+                        <i class="fas fa-filter text-orange-500 mr-2"></i>الفلاتر
+                    </h2>
+                    <a href="{% url 'shoes_view:products' %}" class="text-sm text-gray-500 hover:text-orange-500 transition">مسح الكل</a>
+                </div>
+
+                <div class="filter-section">
+                    <h3 class="font-semibold mb-3 text-gray-700">بحث بالاسم</h3>
+                    <input type="text" name="search" value="{{ request.GET.search }}" placeholder="e.g., Nike Air" class="w-full p-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500">
+                </div>
+                
+                <div class="filter-section">
+                    <h3 class="font-semibold mb-3 text-gray-700">العلامة التجارية</h3>
+                    <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                        {% for brand in brands %}
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" name="brand" value="{{ brand.id }}" {% if brand.id|stringformat:"s" in selected_brands %}checked{% endif %} class="form-checkbox h-4 w-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500">
+                            <span class="mr-2 text-gray-600">{{ brand.name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                     <h3 class="font-semibold mb-3 text-gray-700">اللون</h3>
+                     <select name="color" class="w-full p-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500">
+                        <option value="">جميع الألوان</option>
+                        {% for color_code, color_name in colors %}
+                        <option value="{{ color_code }}" {% if request.GET.color == color_code %}selected{% endif %}>
+                            {{ color_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-section">
+                    <h3 class="font-semibold mb-3 text-gray-700">نطاق السعر</h3>
+                    <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                        <input type="number" name="min_price" value="{{ request.GET.min_price }}" placeholder="الأدنى" class="price-range-input">
+                        <span class="text-gray-400">-</span>
+                        <input type="number" name="max_price" value="{{ request.GET.max_price }}" placeholder="الأعلى" class="price-range-input">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-orange-500 text-white font-bold py-2 lg:py-3 px-4 rounded-lg hover:bg-orange-600 transition duration-300 mt-4 lg:mt-6">
+                    تطبيق الفلاتر
+                </button>
+                
+                <!-- Mobile Close Button -->
+                <button type="button" id="mobile-filter-close" class="lg:hidden w-full mt-3 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300">
+                    إغلاق
+                </button>
+            </form>
+        </aside>
+
+        <!-- Products Grid -->
+        <main class="w-full lg:w-3/4 xl:w-4/5">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-6 bg-white p-3 lg:p-4 rounded-lg shadow-sm">
+                <p class="text-sm lg:text-base text-gray-600 mb-3 md:mb-0">
+                    عرض <span class="font-bold">{{ products.start_index|default:0 }} - {{ products.end_index|default:0 }}</span> من <span class="font-bold">{{ products.paginator.count }}</span> منتجات
+                </p>
+                <div class="flex items-center w-full md:w-auto">
+                    <label for="sort" class="ml-2 text-sm lg:text-base text-gray-600 whitespace-nowrap">ترتيب حسب:</label>
+                    <select name="sort" id="sort-select" class="flex-1 md:flex-none p-2 border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 text-sm lg:text-base">
+                        <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>الأحدث</option>
+                        <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>السعر: من الأقل للأعلى</option>
+                        <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>السعر: من الأعلى للأقل</option>
+                        <option value="name_asc" {% if request.GET.sort == 'name_asc' %}selected{% endif %}>الاسم: أ - ي</option>
+                    </select>
+                </div>
+            </div>
+            
+            {% if products %}
+            <div class="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
+                {% for product in products %}
+                <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-300 hover:-translate-y-2">
+                    <a href="{{ product.get_absolute_url }}" class="block">
+                        <div class="relative overflow-hidden">
+                            {% if product.get_main_image %}
+                            <img src="{{ product.get_main_image.url }}" alt="{{ product.name }}" class="w-full h-32 sm:h-48 lg:h-56 object-cover group-hover:scale-105 transition-transform duration-500">
+                            {% else %}
+                            <div class="w-full h-32 sm:h-48 lg:h-56 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                <i class="fas fa-shoe-prints text-2xl sm:text-4xl lg:text-5xl text-gray-400"></i>
+                            </div>
+                            {% endif %}
+                            
+                            {% if not product.is_in_stock %}
+                                <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                    <span class="text-white font-bold px-3 py-2 bg-red-600 rounded-md text-xs sm:text-sm">نفد المخزون</span>
+                                </div>
+                            {% endif %}
+                            
+                            {% if product.is_featured %}
+                                <div class="absolute top-2 sm:top-3 lg:top-4 right-2 sm:right-3 lg:right-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-2 sm:px-3 py-1 text-xs font-bold rounded-full shadow-lg">
+                                    مميز
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Photo count indicator -->
+                            <div class="absolute top-2 sm:top-3 lg:top-4 left-2 sm:left-3 lg:left-4 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1 rtl:space-x-reverse">
+                                <i class="fas fa-camera"></i>
+                                <span>{{ product.images.count }}</span>
+                            </div>
+                            
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
+                        </div>
+                    </a>
+                    <div class="p-2 sm:p-4 lg:p-5 text-right">
+                        <div class="mb-1 sm:mb-2">
+                            <span class="product-card-brand uppercase tracking-wider">{{ product.brand.name }}</span>
+                        </div>
+                        <h3 class="product-card-title mb-2 sm:mb-3 line-clamp-2" title="{{ product.name }}">
+                            {{ product.name }}
+                        </h3>
+                        <div class="flex items-center justify-between">
+                            <span class="product-card-price">{{ product.price }} شيكل</span>
+                            <a href="{{ product.get_absolute_url }}" class="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full flex items-center justify-center group-hover:from-orange-500 group-hover:to-orange-600 group-hover:text-white transition-all duration-300 text-orange-600 hover:scale-110 shadow-md">
+                                <i class="fas fa-arrow-left text-xs sm:text-sm"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if products.has_other_pages %}
+            <div class="mt-10 flex justify-center">
+                <nav class="flex items-center space-x-2 rtl:space-x-reverse rounded-md shadow-sm" aria-label="Pagination">
+                    {% if products.has_previous %}
+                        <a href="?{% for key, value_list in request.GET.lists %}{% for value in value_list %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endfor %}page={{ products.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-md">
+                            <i class="fas fa-arrow-right ml-1"></i> السابق
+                        </a>
+                    {% endif %}
+                    
+                    <span class="relative z-10 inline-flex items-center px-4 py-2 border border-orange-500 bg-orange-500 text-sm font-medium text-white rounded-md">
+                        {{ products.number }}
+                    </span>
+
+                    {% if products.has_next %}
+                        <a href="?{% for key, value_list in request.GET.lists %}{% for value in value_list %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}{% endfor %}page={{ products.next_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-md">
+                            التالي <i class="fas fa-arrow-left mr-1"></i>
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-20 bg-white rounded-lg shadow-sm">
+                <i class="fas fa-shoe-prints text-6xl text-gray-300 mb-6 transform -rotate-12"></i>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">لم يتم العثور على منتجات</h2>
+                <p class="text-gray-500 mb-6">جرّب تعديل الفلاتر أو تصفح مجموعاتنا الأخرى.</p>
+                <a href="{% url 'shoes_view:products' %}" class="bg-orange-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-orange-600 transition duration-300 inline-block">
+                    مسح جميع الفلاتر
+                </a>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile filter toggle functionality
+    const filterToggle = document.getElementById('mobile-filter-toggle');
+    const filterForm = document.getElementById('filter-form');
+    const filterChevron = document.getElementById('filter-chevron');
+    const filterClose = document.getElementById('mobile-filter-close');
+    
+    if (filterToggle && filterForm) {
+        filterToggle.addEventListener('click', function() {
+            filterForm.classList.toggle('hidden');
+            filterChevron.classList.toggle('rotate-180');
+            
+            // Scroll to filters on mobile when opened
+            if (!filterForm.classList.contains('hidden')) {
+                filterForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+    
+    if (filterClose && filterForm) {
+        filterClose.addEventListener('click', function() {
+            filterForm.classList.add('hidden');
+            filterChevron.classList.remove('rotate-180');
+        });
+    }
+    
+    // Sorting functionality
+    const sortSelect = document.getElementById('sort-select');
+    if(sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const form = document.getElementById('filter-form');
+            const sortValue = this.value;
+            
+            let hiddenInput = form.querySelector('input[name="sort"]');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'sort';
+                form.appendChild(hiddenInput);
+            }
+            hiddenInput.value = sortValue;
+            form.submit();
+        });
+    }
+});
+</script>
+{% endblock %} 
