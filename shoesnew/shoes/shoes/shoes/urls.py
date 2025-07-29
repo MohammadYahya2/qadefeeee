@@ -1,33 +1,29 @@
-"""
-URL configuration for shoes project.
+# shoes/urls.py
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.i18n import set_language
 
+# ==============================================================================
+#                              مسارات URL الأساسية
+# ==============================================================================
 urlpatterns = [
-    path('admin/custom/', include('shoes_view.admin_urls')),  # Custom admin views
+    # مسار مخصص للوحة التحكم
+    path('admin/custom/', include('shoes_view.admin_urls')),
+    # المسار الرئيسي للوحة تحكم Django
     path('admin/', admin.site.urls),
-    path('', include('shoes_view.urls')),
+    # مسار لتبديل اللغة
     path('i18n/setlang/', set_language, name='set_language'),
+    # مسارات التطبيق الرئيسي (يجب أن يكون في النهاية)
+    path('', include('shoes_view.urls')),
 ]
 
-# Serve media files during development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# ==============================================================================
+#  إضافة مسارات لتقديم ملفات الميديا والملفات الثابتة
+#  هذا الإعداد ضروري لتعمل الصور والملفات على استضافة cPanel
+#  عندما يكون DEBUG = False
+# ==============================================================================
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

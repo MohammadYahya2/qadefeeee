@@ -24,9 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-aox4o%4tozwb+!8-#o02huqbq(8+u&)$m0!2lz=sufmvkz6o_e'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# التعديل المطلوب
+DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+# التعديل المطلوب
+ALLOWED_HOSTS = ['al-qathifi.com', 'www.al-qathifi.com', '127.0.0.1', 'localhost']
+
+
 
 
 # Application definition
@@ -147,9 +152,10 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Media files (user uploads)
+# settings.py
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -170,7 +176,9 @@ TELEGRAM_BOT_TOKEN = '8445071189:AAHWcAWBpaoxwAlfrwSt6kqBLgSAwtp1wmk'  # Get fro
 TELEGRAM_CHAT_ID = '-1002706827089'      # Your channel or chat ID (e.g., -1001234567890 for channels)
 
 # Site URL for Telegram image links
-SITE_URL = 'http://127.0.0.1:8000'  # Change to your domain in production
+# التعديل المطلوب
+SITE_URL = 'https://al-qathifi.com'
+
 
 # Wheel of Fortune settings
 DEFAULT_WHEEL_DISCOUNT = 5  # Default 5% discount
