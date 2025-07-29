@@ -4,41 +4,64 @@
 {% block title %}{{ site_name }} - الصفحة الرئيسية{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
+<!-- Hero Section - NEW with BIGGER text -->
 <section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-cover bg-center" style="background-image: url('{% static 'images/heroo.png' %}');">
     <!-- Overlay -->
-    <div class="absolute inset-0 bg-black/60 z-0"></div>
+    <div class="absolute inset-0 bg-black/70 z-0"></div>
     
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="max-w-3xl mx-auto text-center">
+        <div class="max-w-7xl mx-auto text-center">
             
             <!-- Text Content -->
             <div class="animate-fade-in-up">
-                <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold mb-6 leading-tight text-white" style="font-family: 'Amiri', 'Tajawal', serif; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">
-                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-orange-500">
-                        القذيفي
-                    </span>
-                    <br />
-                    <br />
-                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-orange-500">
-                        أقوى محل أحذية رجالي 
-                    </span>
-                    <br />
-                    <br />
-                    <span>برام الله وفلسطين</span>
+                <!-- Main Brand Name - MASSIVE -->
+                <h1 style="font-family: 'Amiri', 'Tajawal', serif; text-shadow: 0 8px 25px rgba(0,0,0,0.7); font-size: 8rem; line-height: 0.9; font-weight: 900; margin-bottom: 3rem; color: #f97316;">
+                    القذيفي
                 </h1>
-                <p class="text-lg text-gray-200 mb-10 max-w-xl mx-auto" style="font-family: 'Amiri', 'Tajawal', sans-serif; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+                
+                <!-- Subtitle - VERY BIG -->
+                <h2 style="font-family: 'Amiri', 'Tajawal', serif; text-shadow: 0 6px 20px rgba(0,0,0,0.6); font-size: 4rem; line-height: 1.1; font-weight: 800; margin-bottom: 2rem; color: #f97316;">
+                    أقوى محل أحذية رجالي
+                </h2>
+                
+                <!-- Location - BIGGER -->
+                <h3 style="font-family: 'Amiri', 'Tajawal', serif; text-shadow: 0 4px 15px rgba(0,0,0,0.5); font-size: 3.5rem; line-height: 1.2; font-weight: 800; margin-bottom: 3rem; color: #ffffff;">
+                    برام الله وفلسطين
+                </h3>
+                
+                <!-- Description - BIGGER -->
+                <p style="font-family: 'Amiri', 'Tajawal', sans-serif; text-shadow: 0 3px 10px rgba(0,0,0,0.5); font-size: 1.75rem; line-height: 1.6; font-weight: 500; margin-bottom: 3rem; color: #e5e7eb; max-width: 800px; margin-left: auto; margin-right: auto;">
                     تشكيلة حصرية من أرقى الأحذية الرجالية. تصميم يجمع بين الفخامة والراحة لتجربة لا مثيل لها.
                 </p>
-                <div class="flex items-center justify-center space-x-4 rtl:space-x-reverse">
-                    <a href="{% url 'shoes_view:products' %}" class="group relative inline-flex items-center justify-center bg-orange-500 text-white rounded-lg py-3 px-8 font-bold text-lg hover:bg-orange-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-orange-500/40">
-                        <span class="relative">تسوق الآن  </span>
-                        <i class="fas fa-arrow-left mr-3 rtl:mr-0 rtl:ml-3 transform transition-transform group-hover:-translate-x-1"></i>
+                
+                <!-- Call to Action Button - Perfect Size -->
+                <div class="flex items-center justify-center">
+                    <a href="{% url 'shoes_view:products' %}" style="font-family: 'Amiri', 'Tajawal', serif; background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 0.75rem 2rem; font-size: 1.125rem; font-weight: 600; border-radius: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4); transition: all 0.3s ease; transform: translateY(0);" 
+                       onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 25px rgba(249, 115, 22, 0.6)';" 
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 20px rgba(249, 115, 22, 0.4)';">
+                        <span>تسوق الآن</span>
+                        <i class="fas fa-arrow-left mr-3 rtl:mr-0 rtl:ml-3" style="font-size: 1rem;"></i>
                     </a>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Mobile Responsive Styles -->
+    <style>
+        @media (max-width: 768px) {
+            h1 { font-size: 4rem !important; margin-bottom: 2rem !important; }
+            h2 { font-size: 2.5rem !important; margin-bottom: 1.5rem !important; }
+            h3 { font-size: 2.2rem !important; margin-bottom: 2rem !important; }
+            p { font-size: 1.25rem !important; margin-bottom: 2rem !important; }
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 3rem !important; }
+            h2 { font-size: 2rem !important; }
+            h3 { font-size: 1.8rem !important; }
+            p { font-size: 1.1rem !important; }
+        }
+    </style>
 </section>
 
 <!-- Popular Brands Section -->

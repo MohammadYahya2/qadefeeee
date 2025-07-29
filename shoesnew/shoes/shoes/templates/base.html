@@ -65,6 +65,47 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Strong cache busting for development -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- Force reload CSS with timestamp -->
+    <style id="cache-buster-styles-v13">
+        /* CACHE BUSTER v13 - Fixed captcha grid - 3 images per row on mobile */
+        .product-card-brand { font-size: 0.65rem !important; }
+        .product-card-title { font-size: 0.75rem !important; }
+        .product-card-price { font-size: 0.8rem !important; }
+        
+        @media (max-width: 640px) {
+            .product-card-brand { font-size: 0.6rem !important; }
+            .product-card-title { font-size: 0.7rem !important; }
+            .product-card-price { font-size: 0.75rem !important; }
+        }
+        
+        .group span, .bg-white span, .shadow-lg span { font-size: 0.65rem !important; }
+        .group h3, .bg-white h3, .shadow-lg h3 { font-size: 0.75rem !important; }
+        
+        @media (max-width: 640px) {
+            .group span, .bg-white span, .shadow-lg span { font-size: 0.6rem !important; }
+            .group h3, .bg-white h3, .shadow-lg h3 { font-size: 0.7rem !important; }
+        }
+        
+        /* Site name perfect size */
+        #desktop-header .text-2xl { font-size: 1.5rem !important; }
+        #desktop-header .text-orange-400 { font-size: 1.5rem !important; }
+        footer .text-4xl { font-size: 2.25rem !important; }
+        
+        /* Captcha grid - force 3 columns on all devices */
+        .captcha-grid { grid-template-columns: repeat(3, 1fr) !important; }
+        @media (max-width: 768px) { 
+            .captcha-grid { gap: 6px !important; padding: 8px !important; }
+        }
+        @media (max-width: 480px) { 
+            .captcha-grid { gap: 4px !important; padding: 6px !important; }
+        }
+    </style>
+    
     <!-- Custom CSS -->
     <style>
         /* Performance optimizations */
@@ -575,7 +616,7 @@
         }
         
         /* Tablet specific (iPad and larger tablets) improvements */
-        @media (min-width: 768px) and (max-width: 1297px) {
+        @media (min-width: 1024px) and (max-width: 1297px) {
             /* Show desktop header on iPad and larger tablets */
             #desktop-header {
                 display: flex !important;
@@ -931,6 +972,7 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
+                touch-action: manipulation !important;
             }
             
             button,
@@ -938,6 +980,26 @@
             .button {
                 min-height: 44px !important;
                 padding: 0.75rem 1.5rem !important;
+                touch-action: manipulation !important;
+            }
+            
+                    /* Enhanced mobile nav touch targets */
+        #mobile-bottom-nav .mobile-nav-item {
+            min-width: 70px !important;
+            min-height: 70px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            touch-action: manipulation !important;
+        }
+            
+            /* Cart and search icons touch improvement */
+            .open-cart-btn,
+            .search-icon {
+                min-width: 48px !important;
+                min-height: 48px !important;
+                padding: 0.75rem !important;
+                touch-action: manipulation !important;
             }
         }
         
@@ -1132,8 +1194,8 @@
                     <a href="{% url 'shoes_view:home' %}" class="flex items-center space-x-3 rtl:space-x-reverse">
                         {% load static %}
                         <img src="{% static 'images/logo_al_qadife.png' %}" alt="{{ site_name }} Logo" class="h-14 w-auto">
-                        <span class="text-xl font-bold" style="font-family: 'Amiri', 'Tajawal', serif;">
-                            <span class="site-name-en text-white transition-colors duration-300">AL-QATHIFI</span> - <span class="text-orange-400">القذيفي</span>
+                        <span class="text-2xl font-bold" style="font-family: 'Amiri', 'Tajawal', serif;">
+                          <span class="text-orange-400">القذيفي</span>
                         </span>
                     </a>
                 </div>
@@ -1186,11 +1248,11 @@
                         <span class="cart-badge-count absolute -top-1 -right-1 bg-orange-500 text-white rounded-full w-4 h-4 text-[10px] font-semibold flex items-center justify-center {% if not cart_count %}hidden{% endif %}">{{ cart_count|default:0 }}</span>
                     </a>
                     {% if user.is_authenticated %}
-                     <a href="{% url 'shoes_view:profile' %}" class="hidden md:block action-icon text-white hover:text-orange-400 transition-colors">
+                     <a href="{% url 'shoes_view:profile' %}" class="action-icon text-white hover:text-orange-400 transition-colors">
                         <i class="fas fa-user text-xl"></i>
                     </a>
                     {% else %}
-                    <a href="{% url 'shoes_view:login' %}" class="hidden md:block action-icon text-white hover:text-orange-400 transition-colors">
+                    <a href="{% url 'shoes_view:login' %}" class="action-icon text-white hover:text-orange-400 transition-colors">
                         <i class="fas fa-sign-in-alt text-xl"></i>
                     </a>
                     {% endif %}
@@ -1201,24 +1263,20 @@
             </div>
 
             <!-- Mobile Header -->
-            <div id="mobile-header" class="md:hidden flex items-center justify-between h-20 px-4 transition-colors duration-300">
-                <a href="{% url 'shoes_view:home' %}" class="flex items-center space-x-2 rtl:space-x-reverse overflow-hidden">
-                    <img src="{% static 'images/logo_al_qadife.png' %}" alt="{{ site_name }} Logo" class="h-10 w-auto flex-shrink-0">
-                    <div class="flex flex-col items-start -space-y-1" style="font-family: 'Amiri', 'Tajawal', sans-serif;">
-                        <span class="site-name-en text-md font-bold text-white transition-colors duration-300">Al-Qadhafi</span>
-                        <span class="text-md font-bold text-orange-400">القذيفي</span>
-                    </div>
+            <div id="mobile-header" class="md:hidden flex items-center justify-between h-16 px-4 transition-colors duration-300">
+                <a href="{% url 'shoes_view:home' %}" class="flex items-center">
+                    <img src="{% static 'images/logo_al_qadife.png' %}" alt="." class="h-8 w-auto">
                 </a>
                 <div class="flex items-center space-x-3 rtl:space-x-reverse">
                     <button class="action-icon text-white hover:text-orange-400 transition-colors">
-                        <i class="fas fa-search text-xl"></i>
+                        <i class="fas fa-search text-lg"></i>
                     </button>
                     <a href="#" class="open-cart-btn relative action-icon text-white hover:text-orange-400 transition-colors">
-                        <i class="fas fa-shopping-bag text-xl"></i>
+                        <i class="fas fa-shopping-bag text-lg"></i>
                         <span class="cart-badge-count absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[10px] font-semibold text-white {% if not cart_count %}hidden{% endif %}">{{ cart_count|default:0 }}</span>
                     </a>
                     <button class="md:hidden action-icon text-white hover:text-orange-400 transition-colors" id="mobile-menu-button-alt">
-                        <i class="fas fa-bars text-xl"></i>
+                        <i class="fas fa-bars text-lg"></i>
                     </button>
                 </div>
             </div>
@@ -1267,7 +1325,7 @@
 
 
     <!-- Main Content -->
-    <main class="min-h-screen pt-20 md:pt-20 pb-24 md:pb-0">
+    <main class="min-h-screen pt-16 md:pt-20 pb-20 md:pb-0">
         <!-- Messages -->
         {% if messages %}
         <div id="django-messages" style="display: none;">
@@ -1282,37 +1340,79 @@
     </main>
 
     <!-- Mobile Bottom Navigation -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg" id="mobile-bottom-nav" style="font-family: 'Amiri', 'Tajawal', serif;">
-        <div class="flex justify-around items-center max-w-xl mx-auto px-2 py-2">
-            <a href="{% url 'shoes_view:home' %}" class="mobile-nav-item">
-                <i class="fas fa-home text-2xl"></i>
-                <span class="text-sm font-medium ml-2">الرئيسية</span>
-            </a>
-            <a href="{% url 'shoes_view:products' %}" class="mobile-nav-item">
-                <i class="fas fa-th-large text-2xl"></i>
-                <span class="text-sm font-medium ml-2">المنتجات</span>
-            </a>
-            <a href="#" class="open-cart-btn mobile-nav-item relative">
-                <i class="fas fa-shopping-bag text-2xl"></i>
-                <span class="cart-badge-count absolute top-0 right-0 block h-4 w-4 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center font-semibold {% if not cart_count %}hidden{% endif %}" style="transform: translate(10%, -25%);">{{ cart_count|default:0 }}</span>
-                <span class="text-sm font-medium ml-2">العربة</span>
-            </a>
-            <a href="{% url 'shoes_view:wheel' %}" class="mobile-nav-item">
-                <i class="fas fa-gift text-2xl"></i>
-                <span class="text-sm font-medium ml-2">الحظ</span>
-            </a>
-            {% if user.is_authenticated %}
-            <a href="{% url 'shoes_view:profile' %}" class="mobile-nav-item">
-                <i class="fas fa-user text-2xl"></i>
-                <span class="text-sm font-medium ml-2">الحساب</span>
-            </a>
-            {% else %}
-            <a href="{% url 'shoes_view:login' %}" class="mobile-nav-item">
-                <i class="fas fa-sign-in-alt text-2xl"></i>
-                <span class="text-sm font-medium ml-2">دخول</span>
-            </a>
-            {% endif %}
-        </div>
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-50" id="mobile-bottom-nav" style="font-family: 'Amiri', 'Tajawal', serif;">
+        <div class="bg-white/95 backdrop-blur-lg border-t border-gray-100 shadow-2xl">
+            <div class="flex justify-around items-center max-w-xl mx-auto px-2 py-2">
+                <a href="{% url 'shoes_view:home' %}" class="mobile-nav-item group">
+                    <div class="flex flex-col items-center p-2 transition-all duration-300 group-hover:scale-110">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-100 to-orange-50 flex items-center justify-center group-hover:from-orange-500 group-hover:to-orange-400 transition-all duration-300 shadow-lg group-hover:shadow-orange-500/30">
+                                <i class="fas fa-home text-lg text-orange-600 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-600 group-hover:text-orange-600 transition-colors duration-300 mt-1">الرئيسية</span>
+                    </div>
+                </a>
+                
+                <a href="{% url 'shoes_view:products' %}" class="mobile-nav-item group">
+                    <div class="flex flex-col items-center p-2 transition-all duration-300 group-hover:scale-110">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-100 to-orange-50 flex items-center justify-center group-hover:from-orange-500 group-hover:to-orange-400 transition-all duration-300 shadow-lg group-hover:shadow-orange-500/30">
+                                <i class="fas fa-th-large text-lg text-orange-600 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-600 group-hover:text-orange-600 transition-colors duration-300 mt-1">المنتجات</span>
+                    </div>
+                </a>
+                
+                <a href="#" class="open-cart-btn mobile-nav-item group">
+                    <div class="flex flex-col items-center p-2 transition-all duration-300 group-hover:scale-110">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-100 to-orange-50 flex items-center justify-center group-hover:from-orange-500 group-hover:to-orange-400 transition-all duration-300 shadow-lg group-hover:shadow-orange-500/30">
+                                <i class="fas fa-shopping-bag text-lg text-orange-600 group-hover:text-white transition-colors duration-300"></i>
+                                <span class="cart-badge-count absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-lg {% if not cart_count %}hidden{% endif %}">{{ cart_count|default:0 }}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-600 group-hover:text-orange-600 transition-colors duration-300 mt-1">العربة</span>
+                    </div>
+                </a>
+                
+                <a href="{% url 'shoes_view:wheel' %}" class="mobile-nav-item group">
+                    <div class="flex flex-col items-center p-2 transition-all duration-300 group-hover:scale-110">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-100 to-orange-50 flex items-center justify-center group-hover:from-orange-500 group-hover:to-orange-400 transition-all duration-300 shadow-lg group-hover:shadow-orange-500/30">
+                                <i class="fas fa-gift text-lg text-orange-600 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-600 group-hover:text-orange-600 transition-colors duration-300 mt-1">الحظ</span>
+                    </div>
+                </a>
+                
+                {% if user.is_authenticated %}
+                <a href="{% url 'shoes_view:profile' %}" class="mobile-nav-item group">
+                    <div class="flex flex-col items-center p-2 transition-all duration-300 group-hover:scale-110">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-100 to-orange-50 flex items-center justify-center group-hover:from-orange-500 group-hover:to-orange-400 transition-all duration-300 shadow-lg group-hover:shadow-orange-500/30">
+                                <i class="fas fa-user text-lg text-orange-600 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-600 group-hover:text-orange-600 transition-colors duration-300 mt-1">الحساب</span>
+                    </div>
+                </a>
+                {% else %}
+                <a href="{% url 'shoes_view:login' %}" class="mobile-nav-item group">
+                    <div class="flex flex-col items-center p-2 transition-all duration-300 group-hover:scale-110">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-100 to-orange-50 flex items-center justify-center group-hover:from-orange-500 group-hover:to-orange-400 transition-all duration-300 shadow-lg group-hover:shadow-orange-500/30">
+                                <i class="fas fa-sign-in-alt text-lg text-orange-600 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-600 group-hover:text-orange-600 transition-colors duration-300 mt-1">دخول</span>
+                    </div>
+                </a>
+                {% endif %}
+            </div>
+        </div>ذ
     </nav>
 
     <!-- Footer -->
@@ -1323,7 +1423,7 @@
                 <div class="col-span-1 md:col-span-2">
                     <div class="flex items-center space-x-3 rtl:space-x-reverse mb-4">
                         <img src="{% static 'images/logo_al_qadife.png' %}" alt="{{ site_name }} Logo" class="h-12 w-auto">
-                        <span class="text-2xl font-bold">
+                        <span class="text-4xl font-bold">
                             <span class="text-black">Al-Qadhafi</span>
                             <span class="text-gray-500"> - </span>
                             <span class="text-orange-500">القذيفي</span>
@@ -1487,59 +1587,155 @@
 
         /* Mobile Bottom Navigation Styles */
         #mobile-bottom-nav {
-            backdrop-filter: blur(20px);
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
             padding-bottom: env(safe-area-inset-bottom, 0);
         }
 
-        #mobile-bottom-nav a {
-            min-width: 60px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 0.5rem 0.25rem;
+        #mobile-bottom-nav .mobile-nav-item {
+            text-decoration: none;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-decoration: none;
+            min-width: 70px;
+            flex: 1;
+            max-width: 80px;
         }
 
-        #mobile-bottom-nav a span {
-            margin-top: 0.25rem;
-            font-size: 0.75rem;
+        /* Modern glassmorphism effect */
+        #mobile-bottom-nav .bg-white\/95 {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
 
-        #mobile-bottom-nav a:hover {
+        /* Hover animation enhancements */
+        #mobile-bottom-nav .group:hover .w-12 {
             transform: translateY(-2px);
-        }
-
-        #mobile-bottom-nav .group:hover i {
-            text-shadow: 0 0 8px currentColor;
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.3);
         }
 
         /* Active state for current page */
-        #mobile-bottom-nav .active {
-            color: var(--gold-100) !important;
+        #mobile-bottom-nav .active .w-12 {
+            background: linear-gradient(135deg, #f97316, #ea580c) !important;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
         }
 
         #mobile-bottom-nav .active i {
-            transform: scale(1.1);
-            text-shadow: 0 0 12px currentColor;
+            color: white !important;
+        }
+
+        #mobile-bottom-nav .active span {
+            color: #f97316 !important;
+            font-weight: 800 !important;
+            text-shadow: 0 1px 3px rgba(249, 115, 22, 0.3) !important;
+        }
+
+        /* Cart badge positioning improvement */
+        #mobile-bottom-nav .cart-badge-count {
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         /* RTL Support for mobile nav */
-        [dir="rtl"] #mobile-bottom-nav .cart-badge {
-            left: -8px;
+        [dir="rtl"] #mobile-bottom-nav .cart-badge-count {
+            left: -4px;
             right: auto;
         }
 
-        /* Responsive text scaling */
-        @media (max-width: 375px) {
-            #mobile-bottom-nav .text-xs {
-                font-size: 0.6rem;
+        /* Container layout fixes */
+        #mobile-bottom-nav .bg-white\/95 {
+            min-height: 80px;
+        }
+        
+        #mobile-bottom-nav .flex.justify-around {
+            display: flex !important;
+            justify-content: space-around !important;
+            align-items: center !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0.5rem 1rem !important;
+        }
+        
+        /* Enhanced touch targets */
+        #mobile-bottom-nav .mobile-nav-item {
+            min-height: 70px;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* Enhanced mobile typography */
+        @media (max-width: 768px) {
+            #mobile-bottom-nav span {
+                font-family: 'Cairo', 'Tajawal', 'Amiri', sans-serif !important;
+                font-size: 0.8rem !important;
+                font-weight: 600 !important;
+                line-height: 1.2 !important;
+                letter-spacing: 0.02em !important;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+                margin-top: 0.25rem !important;
+                color: #374151 !important;
+                white-space: nowrap !important;
+                text-align: center !important;
+                display: block !important;
+                min-height: 1rem !important;
             }
             
-            #mobile-bottom-nav .text-xl {
-                font-size: 1.1rem;
+            #mobile-bottom-nav .group:hover span {
+                color: #f97316 !important;
+                font-weight: 700 !important;
+            }
+        }
+
+        /* Icon containers spacing */
+        #mobile-bottom-nav .w-12 {
+            margin-bottom: 0.25rem !important;
+            flex-shrink: 0 !important;
+        }
+        
+        #mobile-bottom-nav .relative {
+            margin-bottom: 0.25rem !important;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 375px) {
+            #mobile-bottom-nav .w-12 {
+                width: 2.75rem !important;
+                height: 2.75rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+            
+            #mobile-bottom-nav span {
+                font-size: 0.75rem !important;
+                font-weight: 700 !important;
+            }
+            
+            #mobile-bottom-nav .text-lg {
+                font-size: 1rem;
+            }
+            
+            #mobile-bottom-nav .mobile-nav-item {
+                min-width: 60px !important;
+                max-width: 70px !important;
+            }
+        }
+
+        @media (max-width: 320px) {
+            #mobile-bottom-nav .w-12 {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+            
+            #mobile-bottom-nav span {
+                font-size: 0.7rem !important;
+                font-weight: 700 !important;
+            }
+            
+            #mobile-bottom-nav .text-lg {
+                font-size: 0.9rem;
             }
         }
 
@@ -1548,6 +1744,11 @@
             #mobile-bottom-nav {
                 padding-bottom: env(safe-area-inset-bottom);
             }
+        }
+
+        /* Smooth transitions for all elements */
+        #mobile-bottom-nav * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* ===============================================
@@ -1710,14 +1911,19 @@
 
         function setActiveBottomNavItem() {
             const currentPath = window.location.pathname;
-            const navItems = document.querySelectorAll('.mobile-nav-item');
+            const navItems = document.querySelectorAll('#mobile-bottom-nav .mobile-nav-item');
+            
+            // Remove active class from all items
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
             
             let bestMatch = null;
             let bestMatchLength = 0;
 
             navItems.forEach(item => {
                 const href = item.getAttribute('href');
-                if (!href) return;
+                if (!href || href === '#') return;
 
                 if (currentPath === href) {
                     bestMatch = item;
@@ -1732,7 +1938,7 @@
             });
             
             if (!bestMatch && (currentPath === "/" || currentPath === "")) {
-                bestMatch = document.querySelector('.mobile-nav-item[href*="home"]');
+                bestMatch = document.querySelector('#mobile-bottom-nav .mobile-nav-item[href*="home"]');
             }
 
             if (bestMatch) {

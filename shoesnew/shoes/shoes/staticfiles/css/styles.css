@@ -21,11 +21,11 @@ p, span, a, button, input, textarea, select, label {
     font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 6 Pro", "Material Icons", serif !important;
 }
 
-/* Product card typography improvements */
+/* Product card typography improvements - Made even smaller for optimal mobile UX */
 .product-card-brand {
     font-family: 'Cairo', 'Tajawal', sans-serif !important;
     font-weight: 600 !important;
-    font-size: 0.875rem !important; /* 14px */
+    font-size: 0.65rem !important; /* 10px - reduced even more */
     letter-spacing: 0.025em;
     color: #f97316 !important;
 }
@@ -33,31 +33,31 @@ p, span, a, button, input, textarea, select, label {
 .product-card-title {
     font-family: 'Cairo', 'Tajawal', sans-serif !important;
     font-weight: 700 !important;
-    font-size: 1rem !important; /* 16px */
-    line-height: 1.4;
+    font-size: 0.75rem !important; /* 12px - reduced even more */
+    line-height: 1.25;
     color: #1f2937 !important;
 }
 
 .product-card-price {
     font-family: 'Cairo', 'Tajawal', sans-serif !important;
     font-weight: 800 !important;
-    font-size: 1.125rem !important; /* 18px */
+    font-size: 0.8rem !important; /* 13px - reduced even more */
     color: #dc2626 !important;
 }
 
-/* Responsive typography for mobile */
+/* Responsive typography for mobile - extra small */
 @media (max-width: 640px) {
     .product-card-brand {
-        font-size: 0.75rem !important; /* 12px */
+        font-size: 0.6rem !important; /* 9px - even smaller */
     }
     
     .product-card-title {
-        font-size: 0.875rem !important; /* 14px */
-        line-height: 1.3;
+        font-size: 0.7rem !important; /* 11px - even smaller */
+        line-height: 1.2;
     }
     
     .product-card-price {
-        font-size: 1rem !important; /* 16px */
+        font-size: 0.75rem !important; /* 12px - even smaller */
     }
 }
 
@@ -168,6 +168,102 @@ h6 {
 .brand-name {
     font-size: 0.875rem !important; /* 14px */
     font-weight: 600 !important;
+}
+
+/* Legacy price styling - updated */
+
+/* Make ALL card text extra small - targeting any card-like container */
+.group span,
+.card span,
+.bg-white span,
+[class*="card"] span,
+.rounded-2xl span,
+.shadow-lg span,
+.hover\:shadow-2xl span {
+    font-size: 0.65rem !important; /* Made smaller */
+}
+
+.group h3,
+.card h3,
+.bg-white h3,
+[class*="card"] h3,
+.rounded-2xl h3,
+.shadow-lg h3,
+.hover\:shadow-2xl h3 {
+    font-size: 0.75rem !important; /* Made smaller */
+    line-height: 1.25 !important;
+}
+
+/* Mobile - make extra small */
+@media (max-width: 640px) {
+    .group span,
+    .card span,
+    .bg-white span,
+    [class*="card"] span,
+    .rounded-2xl span,
+    .shadow-lg span,
+    .hover\:shadow-2xl span {
+        font-size: 0.6rem !important; /* Even smaller on mobile */
+    }
+    
+    .group h3,
+    .card h3,
+    .bg-white h3,
+    [class*="card"] h3,
+    .rounded-2xl h3,
+    .shadow-lg h3,
+    .hover\:shadow-2xl h3 {
+        font-size: 0.7rem !important; /* Even smaller on mobile */
+        line-height: 1.2 !important;
+    }
+}
+
+/* Additional card text elements - made smaller */
+.product-card .text-xs {
+    font-size: 0.6rem !important; /* Extra small text in cards */
+}
+
+.product-card .text-sm {
+    font-size: 0.7rem !important; /* Small text in cards */
+}
+
+/* Product labels and badges in cards */
+.product-card span,
+.product-card .badge,
+.product-card .label {
+    font-size: 0.7rem !important;
+}
+
+/* Photo count and status badges */
+.product-card .bg-black,
+.product-card .bg-gradient-to-r,
+.product-card [class*="bg-"],
+.product-card .rounded-full span {
+    font-size: 0.6rem !important;
+}
+
+/* Mobile responsive for all card elements */
+@media (max-width: 640px) {
+    .product-card .text-xs {
+        font-size: 0.55rem !important;
+    }
+    
+    .product-card .text-sm {
+        font-size: 0.65rem !important;
+    }
+    
+    .product-card span,
+    .product-card .badge,
+    .product-card .label {
+        font-size: 0.6rem !important;
+    }
+    
+    .product-card .bg-black,
+    .product-card .bg-gradient-to-r,
+    .product-card [class*="bg-"],
+    .product-card .rounded-full span {
+        font-size: 0.55rem !important;
+    }
 }
 
 /* Legacy price styling - updated */

@@ -175,12 +175,12 @@
     margin-top: 5px;
 }
 
-/* Responsive Design */
+/* Responsive Design - Keep 3 images per row on all devices */
 @media (max-width: 768px) {
     .captcha-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-        padding: 10px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        padding: 8px;
     }
     
     .captcha-challenge-header {
@@ -205,7 +205,9 @@
 
 @media (max-width: 480px) {
     .captcha-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+        padding: 6px;
     }
     
     .captcha-checkbox-container {
